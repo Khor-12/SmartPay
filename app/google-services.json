@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1090613762331",
+    "project_id": "smartpay-e3c4d",
+    "storage_bucket": "smartpay-e3c4d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090613762331:android:f0612bfb1d1a4b8e685bbe",
+        "android_client_info": {
+          "package_name": "com.khor.smartpay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1090613762331-mnsri6hhjnc199un39g51qolna22pnv1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwNxoaHQY6ZgWFLc8yH3h0PggMechQOtY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090613762331-mnsri6hhjnc199un39g51qolna22pnv1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
