@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -23,20 +24,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.google.firebase.auth.PhoneAuthProvider
+import com.khor.smartpay.core.data.prefdatastore.UserStore
+import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.verification.components.CodeInputField
 import com.khor.smartpay.feature_auth.presentation.verification.components.DescriptionMessage
 import com.khor.smartpay.feature_auth.presentation.verification.components.ResendTextButton
 import com.khor.smartpay.feature_auth.presentation.verification.components.VerificationTitle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun VerificationScreen(
+    navController: NavController,
     viewModel: VerificationViewModel = hiltViewModel(),
     verificationId: String,
     phoneNumber: String
 ) {
     val localContext = LocalContext.current
+    val store = UserStore(localContext)
 
     var openDialog by remember { mutableStateOf(false) }
     var showProgressIndicator by remember { mutableStateOf(false) }
@@ -53,6 +62,11 @@ fun VerificationScreen(
                 is VerificationViewModel.UiEvent.ShowProgressIndicator -> {
                     showProgressIndicator = true
                 }
+
+                is VerificationViewModel.UiEvent.NavigateToMainScreen -> {
+                    navController.navigate(Screen.InternalScreen.route)
+                    store.saveToken(true)
+                }
             }
         }
     }
@@ -64,9 +78,11 @@ fun VerificationScreen(
                 .padding(top = 200.dp),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator(modifier = Modifier
-                .height(60.dp)
-                .width(60.dp))
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(60.dp)
+            )
         }
 
     }
@@ -108,7 +124,10 @@ fun VerificationScreen(
             }
         }
         ResendTextButton(modifier = Modifier.padding(32.dp)) {
-            viewModel.resendVerificationCode(number = phoneNumber, activity = localContext as Activity)
+            viewModel.resendVerificationCode(
+                number = phoneNumber,
+                activity = localContext as Activity
+            )
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.khor.smartpay.core.presentation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,17 +11,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.presentation.components.Navigation
 import com.khor.smartpay.core.presentation.ui.theme.SmartPayTheme
 import com.khor.smartpay.core.util.Screen
-import com.khor.smartpay.feature_auth.presentation.verification.VerificationScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private lateinit var navController: NavHostController
+    private val viewModel by viewModels<MainViewModel>()
 
+    @SuppressLint("RememberReturnType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -30,10 +35,39 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val navController = rememberNavController()
+                    val store = UserStore(LocalContext.current)
+                    val tokenBoolean = store.getAccessToken.collectAsState(initial = true).value
+                    navController = rememberNavController()
                     Navigation(navController = navController)
+                    if (tokenBoolean) {
+                        AuthState()
+                    }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun AuthState() {
+        val isUserSignedOut = viewModel.getAuthState().collectAsState().value
+        if (isUserSignedOut) {
+            NavigateToSignInScreen()
+        } else {
+            NavigateToInternalScreen()
+        }
+    }
+
+    @Composable
+    private fun NavigateToSignInScreen() = navController.navigate(Screen.WelcomeScreen.route) {
+        popUpTo(navController.graph.id) {
+            inclusive = true
+        }
+    }
+
+    @Composable
+    private fun NavigateToInternalScreen() = navController.navigate(Screen.InternalScreen.route) {
+        popUpTo(navController.graph.id) {
+            inclusive = true
         }
     }
 }
