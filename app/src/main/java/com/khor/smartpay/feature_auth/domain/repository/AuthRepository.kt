@@ -1,13 +1,11 @@
 package com.khor.smartpay.feature_auth.domain.repository
 
 import android.app.Activity
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
+import androidx.compose.runtime.MutableState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
 import com.khor.smartpay.core.util.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +15,6 @@ typealias AuthStateResponse = StateFlow<Boolean>
 
 interface AuthRepository {
     val currentUser: FirebaseUser?
-    val db: FirebaseFirestore?
 
     suspend fun sendVerificationCode(
         number: String,
@@ -28,12 +25,8 @@ interface AuthRepository {
     suspend fun signInWithPhoneAuthCredential(
         credential: PhoneAuthCredential,
         activity: Activity,
-        signInWithCredential: (Task<AuthResult>) -> Unit
-    )
-
-    suspend fun createUser(qrCode: String): Flow<Resource<String>>
-
-    fun startScanning(): Flow<String?>
+        viewModelScope: CoroutineScope
+    ): Flow<Resource<String>>
 
     fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse
 }
