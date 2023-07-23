@@ -30,8 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.khor.smartpay.feature_auth.presentation.welcome.components.PhoneNumberInputField
 import com.khor.smartpay.feature_auth.presentation.welcome.components.SmartPayHeader
 import kotlinx.coroutines.flow.collectLatest
@@ -63,8 +61,12 @@ fun WelcomeScreen(
     }
 
     if (showProgressIndicator) {
-        Box(modifier = Modifier.fillMaxSize().padding(top = 200.dp), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(modifier = Modifier.height(60.dp).width(60.dp))
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 200.dp), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(modifier = Modifier
+                .height(60.dp)
+                .width(60.dp))
         }
 
     }
@@ -122,7 +124,7 @@ fun WelcomeScreen(
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier
                 .alpha(0.5f)
-                .padding(top = 150.dp)
+                .padding(top = 140.dp)
         )
     }
 }

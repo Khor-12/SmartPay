@@ -23,7 +23,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.google.firebase.auth.PhoneAuthProvider
+import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.verification.components.CodeInputField
 import com.khor.smartpay.feature_auth.presentation.verification.components.DescriptionMessage
 import com.khor.smartpay.feature_auth.presentation.verification.components.ResendTextButton
@@ -32,6 +34,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun VerificationScreen(
+    navController: NavController,
     viewModel: VerificationViewModel = hiltViewModel(),
     verificationId: String,
     phoneNumber: String
@@ -52,6 +55,9 @@ fun VerificationScreen(
 
                 is VerificationViewModel.UiEvent.ShowProgressIndicator -> {
                     showProgressIndicator = true
+                }
+                is VerificationViewModel.UiEvent.NavigateToMainScreen -> {
+                    navController.navigate(Screen.HomeScreen.route)
                 }
             }
         }

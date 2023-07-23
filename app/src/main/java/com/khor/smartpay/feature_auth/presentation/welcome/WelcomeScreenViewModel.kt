@@ -59,10 +59,6 @@ class WelcomeScreenViewModel @Inject constructor(
                 activity = activity,
                 callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     override fun onVerificationCompleted(p0: PhoneAuthCredential) {
-                        Log.d("FirebaseResults", "Successful")
-                        viewModelScope.launch {
-                            _eventFlow.emit(UiEvent.ShowAlertDialog("Successful" ?: "", true))
-                        }
                     }
 
                     override fun onVerificationFailed(p0: FirebaseException) {
