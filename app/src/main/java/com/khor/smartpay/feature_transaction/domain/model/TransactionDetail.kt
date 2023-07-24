@@ -1,7 +1,5 @@
 package com.khor.smartpay.feature_transaction.domain.model
 
-import java.util.Date
-
 
 data class TransactionDetail(
     val transactionType: String,
@@ -10,3 +8,4 @@ data class TransactionDetail(
     val dateTime: String,
     val amount: String
 )
+

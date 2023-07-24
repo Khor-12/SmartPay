@@ -1,6 +1,7 @@
 package com.khor.smartpay.feature_transaction.data.repository
 
 import com.khor.smartpay.core.util.Resource
+import com.khor.smartpay.core.util.toSimpleDate
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import com.khor.smartpay.feature_transaction.data.local.TransactionDetailDao
 import com.khor.smartpay.feature_transaction.data.local.entity.TransactionDetailEntity
@@ -40,7 +41,7 @@ class TransactionDetailRepositoryImpl @Inject constructor(
                                     to = document.get("to") as String,
                                     amount = document.getDouble("amount").toString(),
                                     dateTime = document.getTimestamp("dateTime")!!.toDate()
-                                        .toString()
+                                        .toSimpleDate()
                                 )
                             )
                             send(
@@ -58,7 +59,8 @@ class TransactionDetailRepositoryImpl @Inject constructor(
                                         from = document.get("from") as String,
                                         to = document.get("to") as String,
                                         amount = document.getDouble("amount").toString(),
-                                        dateTime = document.getTimestamp("dateTime").toString()
+                                        dateTime = document.getTimestamp("dateTime")!!.toDate()
+                                            .toSimpleDate()
                                     )
                                 )
                             )

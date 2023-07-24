@@ -67,7 +67,7 @@ fun TransactionsScreen() {
                 CircularProgressIndicator(modifier = Modifier.size(70.dp))
             }
         } else {
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
+            LazyColumn(modifier = Modifier.padding(horizontal = 20.dp)) {
                 items(items = results) {
                     TransactionCard(
                         it
@@ -77,6 +77,5 @@ fun TransactionsScreen() {
         }
 
     }
-
 
 }
