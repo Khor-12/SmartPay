@@ -59,8 +59,7 @@ fun TransactionCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 4.dp)
-            .then(modifier),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .then(modifier)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
