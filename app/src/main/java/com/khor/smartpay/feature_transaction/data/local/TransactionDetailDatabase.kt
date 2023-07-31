@@ -6,7 +6,7 @@ import com.khor.smartpay.feature_transaction.data.local.entity.TransactionDetail
 
 @Database(
     entities = [TransactionDetailEntity::class],
-    version = 2
+    version = 1
 )
 abstract class TransactionDetailDatabase: RoomDatabase() {
 

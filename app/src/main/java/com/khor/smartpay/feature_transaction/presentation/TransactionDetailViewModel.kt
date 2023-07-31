@@ -1,7 +1,9 @@
 package com.khor.smartpay.feature_transaction.presentation
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.khor.smartpay.core.util.Resource
@@ -11,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,39 +22,42 @@ class TransactionDetailViewModel @Inject constructor(
     private val repository: TransactionDetailRepository
 ) : ViewModel() {
 
+    private val _state = mutableStateOf(TransactionDetailState())
+    val state = _state
+
     init {
         showTransactionDetails(TransactionOrder.All)
     }
 
-    private val _state = mutableStateOf(TransactionDetailState())
-    val state: State<TransactionDetailState> = _state
-
-    private val _eventFlow = MutableSharedFlow<UIEvent>()
-    val event = _eventFlow.asSharedFlow()
-
     fun onEvent(event: TransactionsEvent) {
         when (event) {
             is TransactionsEvent.ToggleOrderSection -> {
-                _state.value = state.value.copy(
-                    isFilterListVisible = !state.value.isFilterListVisible
+                this.state.value = this.state.value.copy(
+                    isFilterListVisible = !this.state.value.isFilterListVisible
                 )
             }
             is TransactionsEvent.Order -> {
-                _state.value = state.value.copy(
+                this.state.value = this.state.value.copy(
                     transactionOrder = event.transactionOrder
                 )
+            }
+            is TransactionsEvent.OnRefresh -> {
+                showTransactionDetails()
             }
         }
     }
 
-    fun showTransactionDetails(transactionOrder: TransactionOrder) {
+    fun showTransactionDetails(
+        transactionOrder: TransactionOrder = TransactionOrder.All
+    ) {
         viewModelScope.launch {
             repository.getTransactions()
                 .onEach { result ->
                     when (result) {
                         is Resource.Success -> {
-                            _state.value =
-                                state.value.copy(transactionDetailItems = when (transactionOrder) {
+                            state.value =
+                                state.value.copy(transactionDetailItems =
+                                when (transactionOrder) {
                                     is TransactionOrder.All -> result.data
                                     is TransactionOrder.Buy ->
                                         result.data?.filter {
@@ -78,30 +82,19 @@ class TransactionDetailViewModel @Inject constructor(
                         }
 
                         is Resource.Error -> {
-                            _state.value = state.value.copy(
+                            state.value = state.value.copy(
                                 transactionDetailItems = result.data ?: emptyList(),
                                 isLoading = false
-                            )
-                            _eventFlow.emit(
-                                UIEvent.ShowSnackbar(
-                                    result.message ?: "Unknown Error"
-                                )
                             )
                         }
 
                         is Resource.Loading -> {
                             _state.value = state.value.copy(
-                                transactionDetailItems = result.data ?: emptyList(),
-                                isLoading = true
+                                isLoading = result.isLoading
                             )
                         }
                     }
                 }.launchIn(this)
         }
-    }
-
-
-    sealed class UIEvent() {
-        data class ShowSnackbar(val message: String) : UIEvent()
     }
 }

@@ -32,20 +32,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun TransactionsScreen() {
     val viewModel: TransactionDetailViewModel = hiltViewModel()
     val results = viewModel.state.value.transactionDetailItems
-    val snackbarHostState = remember { SnackbarHostState() }
-    val state = viewModel.state.value
-
-    LaunchedEffect(key1 = true) {
-        viewModel.event.collectLatest { event ->
-            when (event) {
-                is TransactionDetailViewModel.UIEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(
-                        message = event.message
-                    )
-                }
-            }
-        }
-    }
+    val state = viewModel.state
 
     Column(modifier = Modifier.fillMaxSize()) {
         StandardToolbar(
@@ -65,7 +52,7 @@ fun TransactionsScreen() {
             }
         )
 
-        AnimatedVisibility(visible = state.isFilterListVisible) {
+        AnimatedVisibility(visible = state.value.isFilterListVisible) {
             FilterItems(
                 modifier = Modifier
                     .fillMaxWidth()

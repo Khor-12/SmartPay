@@ -7,5 +7,6 @@ data class TransactionDetailState(
     val transactionDetailItems: List<TransactionDetail> = emptyList(),
     val isLoading: Boolean = false,
     val isFilterListVisible: Boolean = false,
-    var transactionOrder: TransactionOrder = TransactionOrder.All
+    var transactionOrder: TransactionOrder = TransactionOrder.All,
+    val isRefreshing: Boolean = false
 )

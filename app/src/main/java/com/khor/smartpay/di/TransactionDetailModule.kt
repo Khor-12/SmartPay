@@ -29,7 +29,7 @@ object TransactionDetailModule {
     @Singleton
     fun provideTransactionDetailDatabase(app: Application): TransactionDetailDatabase {
         return Room.databaseBuilder(
-            app, TransactionDetailDatabase::class.java, "transaction_db"
+            app, TransactionDetailDatabase::class.java, "local_transaction_db"
         ).build()
     }
 }
