@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_transaction.presentation.component
+package com.khor.smartpay.feature_auth.feature_transaction.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -20,7 +20,6 @@ fun ChipFilter(
     FilterChip(modifier = Modifier.then(modifier),
         selected = isSelected,
         onClick = { onChipClicked() },
-        label = { Text(sortTypeName) },
-        shape = CircleShape
+        label = { Text(sortTypeName) }
     )
 }

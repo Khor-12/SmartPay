@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_transaction.presentation.component
+package com.khor.smartpay.feature_auth.feature_transaction.presentation.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.khor.smartpay.feature_transaction.domain.util.TransactionOrder
 import com.khor.smartpay.feature_transaction.presentation.TransactionDetailViewModel
 import com.khor.smartpay.feature_transaction.presentation.TransactionsEvent
+import com.khor.smartpay.feature_transaction.presentation.component.ChipFilter
 
 @Composable
 fun FilterItems(

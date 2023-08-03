@@ -38,4 +38,3 @@ interface AuthRepository {
 
     fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse
 }
-

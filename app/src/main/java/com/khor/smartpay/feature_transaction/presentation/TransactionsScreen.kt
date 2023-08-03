@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.khor.smartpay.R
 import com.khor.smartpay.core.presentation.components.StandardToolbar
-import com.khor.smartpay.feature_transaction.presentation.component.FilterItems
-import com.khor.smartpay.feature_transaction.presentation.component.TransactionCard
+import com.khor.smartpay.feature_auth.feature_transaction.presentation.component.FilterItems
+import com.khor.smartpay.feature_auth.feature_transaction.presentation.component.TransactionCard
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable

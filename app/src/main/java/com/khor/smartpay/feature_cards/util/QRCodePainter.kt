@@ -23,8 +23,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun rememberQrBitmapPainter(
     content: String,
-    size: Dp = 150.dp,
-    padding: Dp = 0.dp
+    size: Dp = 300.dp,
+    padding: Dp = 1.dp
 ): BitmapPainter {
 
     val density = LocalDensity.current

@@ -29,7 +29,7 @@ import java.net.HttpRetryException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-@Singleton
+
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val scanner: GmsBarcodeScanner,
@@ -146,7 +146,6 @@ class AuthRepositoryImpl @Inject constructor(
                 }
             awaitClose { }
         }
-
     }
 
     override fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse =
