@@ -1,8 +1,7 @@
 package com.khor.smartpay.feature_cards.presentation
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.khor.smartpay.core.util.Resource
@@ -20,12 +19,13 @@ class CardsViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-
     val state = mutableStateOf(CardsScreenState())
 
     init {
         getCards()
     }
+
+    fun observeState() = snapshotFlow { state.value }
 
     fun getCards() {
         viewModelScope.launch {
@@ -49,7 +49,43 @@ class CardsViewModel @Inject constructor(
                 when (result) {
                     is Resource.Error -> Unit
                     is Resource.Loading -> Unit
-                    is Resource.Success -> Unit
+                    is Resource.Success -> {
+                        getCards()
+                    }
+                }
+            }.launchIn(this)
+        }
+    }
+
+    fun updateCard(cardId: String, isFrozen: Boolean?, limit: Double?) {
+        viewModelScope.launch {
+            repository.updateCard(cardId, isFrozen, limit).onEach { result ->
+                when (result) {
+                    is Resource.Error -> Unit
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> state.value = state.value.copy(
+                        cards = state.value.cards.map { card ->
+                            if (card.qrCode == cardId && isFrozen != null) {
+                                card.copy(isFrozen = isFrozen)
+                            } else {
+                                card
+                            }
+                        }
+                    )
+                }
+            }.launchIn(this)
+        }
+    }
+
+    fun deleteCard(card: String) {
+        viewModelScope.launch {
+            repository.deleteCard(card).onEach { result ->
+                when (result) {
+                    is Resource.Error -> Unit
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> {
+                        getCards()
+                    }
                 }
             }.launchIn(this)
         }

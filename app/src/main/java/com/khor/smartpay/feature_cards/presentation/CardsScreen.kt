@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,12 +37,18 @@ import com.khor.smartpay.R
 import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.feature_auth.presentation.verification.VerificationViewModel
 import com.khor.smartpay.feature_cards.presentation.components.QrCodeCard
+import kotlinx.coroutines.flow.filterNotNull
 
 @OptIn(ExperimentalPagerApi::class)
-@SuppressLint("ResourceType", "CoroutineCreationDuringComposition")
+@SuppressLint("ResourceType", "CoroutineCreationDuringComposition",
+    "FlowOperatorInvokedInComposition"
+)
 @Composable
 fun CardsScreen() {
     val viewModel: CardsViewModel = hiltViewModel()
+    val cards = viewModel.state.value.cards
+    val pageCount = cards.size
+    val pagerState = rememberPagerState(pageCount = pageCount)
 
     StandardToolbar(title = { Text("Cards") }, navActions = {
         IconButton(
@@ -57,16 +64,11 @@ fun CardsScreen() {
         }
     })
 
-    val cards = viewModel.state.value.cards
-    val pageCount = cards.size
-    val pagerState = rememberPagerState(pageCount = pageCount)
-
     if (pageCount > 0) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
             Row(
                 Modifier
@@ -95,7 +97,12 @@ fun CardsScreen() {
                 state = pagerState
             ) { page ->
                 // Our page content
-                QrCodeCard(qrCode = cards[page].qrCode)
+                QrCodeCard(
+                    qrCode = cards[page].qrCode,
+                    isFrozen = cards[page].isFrozen,
+                    limit = cards[page].limit,
+                    viewModel = viewModel
+                )
             }
         }
     } else {

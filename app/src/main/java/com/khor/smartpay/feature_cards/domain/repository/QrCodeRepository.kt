@@ -9,4 +9,13 @@ interface QrCodeRepository {
     suspend fun createCard(): Flow<Resource<Boolean>>
 
     suspend fun getQrCodeCards(): Flow<Resource<List<Card>>>
+
+    suspend fun updateCard(
+        cardId: String,
+        isFrozen: Boolean?,
+        limit: Double?
+    ): Flow<Resource<Boolean>>
+
+    suspend fun deleteCard(card: String): Flow<Resource<Boolean>>
+
 }
