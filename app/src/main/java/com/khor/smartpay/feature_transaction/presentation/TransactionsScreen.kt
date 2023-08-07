@@ -1,10 +1,12 @@
 package com.khor.smartpay.feature_transaction.presentation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,11 +14,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -25,8 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.khor.smartpay.R
 import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.feature_auth.feature_transaction.presentation.component.FilterItems
-import com.khor.smartpay.feature_auth.feature_transaction.presentation.component.TransactionCard
-import kotlinx.coroutines.flow.collectLatest
+import com.khor.smartpay.feature_transaction.presentation.component.TransactionCard
 
 @Composable
 fun TransactionsScreen() {
@@ -34,24 +32,24 @@ fun TransactionsScreen() {
     val results = viewModel.state.value.transactionDetailItems
     val state = viewModel.state
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        StandardToolbar(
-            title = { Text("Transactions") },
-            modifier = Modifier.padding(bottom = 8.dp),
-            navActions = {
-                IconButton(
-                    onClick = { viewModel.onEvent(TransactionsEvent.ToggleOrderSection) },
-                    modifier = Modifier
-                ) {
-                    Icon(
-                        modifier = Modifier.size(28.dp),
-                        painter = painterResource(id = R.drawable.filter),
-                        contentDescription = "sort by"
-                    )
-                }
+    StandardToolbar(
+        title = { Text("Transactions") },
+        modifier = Modifier.padding(bottom = 8.dp),
+        navActions = {
+            IconButton(
+                onClick = { viewModel.onEvent(TransactionsEvent.ToggleOrderSection) },
+                modifier = Modifier
+            ) {
+                Icon(
+                    modifier = Modifier.size(28.dp),
+                    painter = painterResource(id = R.drawable.filter),
+                    contentDescription = "sort by"
+                )
             }
-        )
+        }
+    )
 
+    Column(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(visible = state.value.isFilterListVisible) {
             FilterItems(
                 modifier = Modifier
@@ -62,23 +60,37 @@ fun TransactionsScreen() {
             )
         }
 
-        if (viewModel.state.value.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(modifier = Modifier.size(70.dp))
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                items(items = results) {
-                    TransactionCard(
-                        it
-                    )
+        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
+            if (viewModel.state.value.isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(modifier = Modifier.size(70.dp))
                 }
+            } else {
+                if (viewModel.state.value.transactionDetailItems.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No Transactions", modifier = Modifier.offset(y = (-50).dp))
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        items(items = results) {
+                            TransactionCard(
+                                it
+                            )
+                        }
+                    }
+                }
+
             }
         }
+
 
     }
 

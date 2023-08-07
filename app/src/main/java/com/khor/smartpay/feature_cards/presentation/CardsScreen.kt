@@ -114,7 +114,7 @@ fun CardsScreen() {
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text("No cards available.")
+            Text("No cards available.", modifier = Modifier.offset(y = (-50).dp))
         }
     }
 

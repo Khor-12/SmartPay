@@ -134,7 +134,7 @@ fun QrCodeCard(
         if (showAlertLimit) {
             AlertDialog(
                 onDismissRequest = { showAlertLimit = false },
-                title = { Text(text = "Freeze", style = MaterialTheme.typography.headlineMedium) },
+                title = { Text(text = "Limit", style = MaterialTheme.typography.headlineMedium) },
                 text = {
                     TextField(
                         value = textFieldValue,
