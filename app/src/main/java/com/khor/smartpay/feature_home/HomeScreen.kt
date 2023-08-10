@@ -1,21 +1,25 @@
 package com.khor.smartpay.feature_home
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,10 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -51,7 +52,11 @@ fun HomeScreen() {
 
                 }, modifier = Modifier
             ) {
-                Icon(imageVector = Icons.Filled.Settings, contentDescription = "Settings")
+                Icon(
+                    painter = painterResource(R.drawable.settings),
+                    modifier = Modifier.size(28.dp),
+                    contentDescription = "Settings"
+                )
             }
         })
 
@@ -121,7 +126,7 @@ fun HomeScreen() {
         Card(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
-                    .padding(24.dp)
+                    .padding(top = 24.dp, start = 24.dp, end = 24.dp)
                     .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
@@ -135,11 +140,16 @@ fun HomeScreen() {
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    Text("Mar - Aug")
+                    Text(
+                        "2023",
+                        modifier = Modifier.padding(top = 3.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
                     IconButton(onClick = {}, modifier = Modifier.offset(y = (-10).dp)) {
                         Icon(
                             imageVector = Icons.Filled.DateRange,
-                            contentDescription = "pick a date"
+                            contentDescription = "pick year"
                         )
                     }
                 }
@@ -147,8 +157,10 @@ fun HomeScreen() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
-            )
+                    .height(200.dp)
+            ) {
+                App()
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -194,35 +206,86 @@ fun HomeScreen() {
         }
 
     }
+}
+
+
+data class MonthlyData(val month: String, val income: Float, val expense: Float)
+
+@Composable
+fun MonthlyHistogram(monthlyData: List<MonthlyData>) {
+    Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState())
+    ) {
+        monthlyData.forEach { data ->
+            MonthlyHistogramItem(data)
+        }
+    }
 
 }
 
 @Composable
-fun HistogramGraph(data: List<Float>) {
-    val maxValue = data.maxOrNull() ?: 0f
-    val barWidth = 30.dp
-    val barSpacing = 16.dp
+fun MonthlyHistogramItem(data: MonthlyData) {
+    val maxAmount = maxOf(data.income, data.expense)
+    val incomeRatio = data.income / maxAmount
+    val expenseRatio = data.expense / maxAmount
 
-    Canvas(
+    Box(
         modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .height(200.dp)
+            .width(40.dp)
+            .padding(horizontal = 4.dp),
     ) {
-        val xStep = (size.width - (data.size - 1) * barSpacing.toPx()) / data.size
-        var x = 0f
-
-        data.forEachIndexed { index, value ->
-            val barHeight = (value / maxValue) * size.height
-
-            drawRect(
-                color = Color.Blue,
-                topLeft = Offset(x, size.height - barHeight),
-                size = Size(barWidth.toPx(), barHeight),
-                style = Stroke(width = 1.dp.toPx())
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(incomeRatio)
+                .width(25.dp)
+                .background(Color(0xFF4CAF50))
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(expenseRatio)
+                .width(25.dp)
+                .background(MaterialTheme.colorScheme.error)
+        )
+        Box(
+            modifier = Modifier
+                .width(25.dp)
+                .offset(y = (165).dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = data.month,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(vertical = 4.dp),
+                textAlign = TextAlign.Center
             )
-
-            x += xStep + barSpacing.toPx()
         }
+
+    }
+}
+
+
+@Composable
+fun App() {
+    val monthlyData = listOf(
+        MonthlyData("Jan", 1200f, 800f),
+        MonthlyData("Feb", 1500f, 1000f),
+        MonthlyData("Mar", 1800f, 1200f),
+        MonthlyData("Apr", 1600f, 1100f),
+        MonthlyData("May", 2000f, 1300f),
+        MonthlyData("Jun", 2100f, 1400f),
+        MonthlyData("Jul", 2300f, 1500f),
+        MonthlyData("Aug", 2200f, 1600f),
+        MonthlyData("Sep", 2500f, 1700f),
+        MonthlyData("Oct", 2400f, 1800f),
+        MonthlyData("Nov", 2600f, 1900f),
+        MonthlyData("Dec", 2800f, 2000f)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        MonthlyHistogram(monthlyData)
     }
 }
