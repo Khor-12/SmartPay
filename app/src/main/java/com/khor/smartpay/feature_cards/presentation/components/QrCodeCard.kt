@@ -4,11 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -59,20 +65,26 @@ fun QrCodeCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(top = 10.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Card(
-            onClick = {}, modifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .height(450.dp)
                 .padding(bottom = 20.dp)
         ) {
+            Text(
+                modifier = Modifier.padding(top = 20.dp, bottom = 5.dp).fillMaxWidth(),
+                text = qrCode,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
             Image(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 20.dp)
+                    .padding()
                     .clip(RoundedCornerShape(16.dp)),
-                painter = rememberQrBitmapPainter(content = "@smartpayuser1"),
+                painter = rememberQrBitmapPainter(content = qrCode),
                 contentDescription = null
             )
             Row(
@@ -81,35 +93,42 @@ fun QrCodeCard(
                     .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = {
-                    showAlertLimit = true
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.limit),
-                        contentDescription = null
-                    )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Button(onClick = {
+                        showAlertLimit = true
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.limit),
+                            contentDescription = null
+                        )
+                    }
+                    Text("Limit")
                 }
-                Button(onClick = {
-                    showAlertFreeze = true
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.freeze),
-                        contentDescription = null
-                    )
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Button(onClick = {
+                        showAlertFreeze = true
+                    }) {
+                        Icon(
+                            modifier = Modifier.size(28.dp),
+                            painter = painterResource(id = R.drawable.freeze),
+                            contentDescription = null
+                        )
+                    }
+                    Text("Freeze")
                 }
-                Button(onClick = {
-                    viewModel.deleteCard(qrCode)
-                }) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Button(onClick = {
+                        viewModel.deleteCard(qrCode)
+                    }) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                    }
+                    Text("Delete")
                 }
             }
         }
 
-        Text(
-            text = qrCode,
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Start
-        )
 
         if (showAlertFreeze) {
             AlertDialog(
@@ -160,5 +179,4 @@ fun QrCodeCard(
             )
         }
     }
-
 }

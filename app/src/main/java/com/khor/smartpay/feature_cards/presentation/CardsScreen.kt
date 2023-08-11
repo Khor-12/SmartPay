@@ -2,6 +2,7 @@ package com.khor.smartpay.feature_cards.presentation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -26,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -40,7 +39,8 @@ import com.khor.smartpay.feature_cards.presentation.components.QrCodeCard
 import kotlinx.coroutines.flow.filterNotNull
 
 @OptIn(ExperimentalPagerApi::class)
-@SuppressLint("ResourceType", "CoroutineCreationDuringComposition",
+@SuppressLint(
+    "ResourceType", "CoroutineCreationDuringComposition",
     "FlowOperatorInvokedInComposition"
 )
 @Composable
@@ -57,7 +57,9 @@ fun CardsScreen() {
             }, modifier = Modifier
         ) {
             Icon(
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier
+                    .size(28.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.primaryContainer, CircleShape),
                 painter = painterResource(id = R.drawable.add),
                 contentDescription = "Add Card"
             )
