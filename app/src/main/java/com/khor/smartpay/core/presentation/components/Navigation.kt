@@ -10,8 +10,9 @@ import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.verification.VerificationScreen
 import com.khor.smartpay.feature_auth.presentation.welcome.WelcomeScreen
 import com.khor.smartpay.feature_cards.presentation.CardsScreen
-import com.khor.smartpay.feature_home.HomeScreen
+import com.khor.smartpay.feature_home.presentation.HomeScreen
 import com.khor.smartpay.feature_payment.PaymentScreen
+import com.khor.smartpay.feature_settings.presentation.SettingsScreen
 import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
 
 @Composable
@@ -25,7 +26,7 @@ fun Navigation(
         composable(
             route = Screen.InternalScreen.route
         ) {
-            AppContent()
+            AppContent(navController)
         }
         composable(
             route = Screen.WelcomeScreen.route
@@ -57,7 +58,7 @@ fun Navigation(
         composable(
             route = Screen.HomeScreen.route
         ) {
-            HomeScreen()
+            HomeScreen(navController)
         }
         composable(
             route = Screen.PaymentScreen.route
@@ -73,6 +74,12 @@ fun Navigation(
             route = Screen.TransactionsScreen.route
         ) {
             TransactionsScreen()
+        }
+
+        composable(
+            route = Screen.SettingsScreen.route
+        ) {
+            SettingsScreen()
         }
 
     }

@@ -34,6 +34,8 @@ interface AuthRepository {
 
     suspend fun createUser(qrCode: String): Flow<Resource<String>>
 
+    fun signOut()
+
     fun startScanning(): Flow<String?>
 
     fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse

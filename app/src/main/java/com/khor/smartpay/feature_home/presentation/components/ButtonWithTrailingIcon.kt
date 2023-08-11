@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_home.components
+package com.khor.smartpay.feature_home.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

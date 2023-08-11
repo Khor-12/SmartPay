@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_home
+package com.khor.smartpay.feature_home.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -15,11 +15,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,18 +36,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.khor.smartpay.R
 import com.khor.smartpay.core.presentation.components.StandardToolbar
-import com.khor.smartpay.feature_home.components.PaymentButton
+import com.khor.smartpay.core.util.Screen
+import com.khor.smartpay.feature_home.presentation.components.PaymentButton
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navController: NavController
+) {
+    val viewModel: HomeScreenViewModel = hiltViewModel()
+    val state = viewModel.state
+
     StandardToolbar(
-        title = { Text("+256787102643", style = MaterialTheme.typography.titleMedium) },
+        title = { Text(state.phoneNumber, style = MaterialTheme.typography.titleMedium) },
         navActions = {
             IconButton(
                 onClick = {
-
+                    navController.navigate(Screen.SettingsScreen.route)
                 }, modifier = Modifier
             ) {
                 Icon(

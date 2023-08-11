@@ -18,18 +18,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.khor.smartpay.R
 import com.khor.smartpay.feature_cards.presentation.CardsScreen
-import com.khor.smartpay.feature_home.HomeScreen
+import com.khor.smartpay.feature_home.presentation.HomeScreen
 import com.khor.smartpay.feature_payment.PaymentScreen
-import com.khor.smartpay.feature_transaction.presentation.TransactionDetailViewModel
 import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AppContent() {
+fun AppContent(navController: NavController) {
     var currentScreen by rememberSaveable { mutableStateOf(InternalScreen.Home) }
 
     Scaffold(
@@ -39,7 +38,7 @@ fun AppContent() {
             }
         }
     ) {
-        ScreenContent(currentScreen)
+        ScreenContent(currentScreen, navController)
     }
 }
 
@@ -88,11 +87,11 @@ fun BottomNavigationBar(currentScreen: InternalScreen, onScreenSelected: (Intern
 }
 
 @Composable
-fun ScreenContent(screen: InternalScreen) {
+fun ScreenContent(screen: InternalScreen, navController: NavController) {
     Column {
         when (screen) {
             InternalScreen.Home -> {
-                HomeScreen()
+                HomeScreen(navController)
             }
 
             InternalScreen.Payment -> {

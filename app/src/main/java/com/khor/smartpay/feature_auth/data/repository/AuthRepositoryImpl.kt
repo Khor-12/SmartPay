@@ -162,4 +162,6 @@ class AuthRepositoryImpl @Inject constructor(
             SharingStarted.WhileSubscribed(),
             auth.currentUser == null
         )
+
+    override fun signOut() = auth.signOut()
 }
