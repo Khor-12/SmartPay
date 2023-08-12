@@ -79,7 +79,7 @@ fun Navigation(
         composable(
             route = Screen.SettingsScreen.route
         ) {
-            SettingsScreen()
+            SettingsScreen(navController)
         }
 
     }

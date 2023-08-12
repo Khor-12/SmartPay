@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -59,7 +60,7 @@ fun CardsScreen() {
             Icon(
                 modifier = Modifier
                     .size(28.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                    .border(1.dp, MaterialTheme.colorScheme.onSurface, CircleShape).alpha(0.8f),
                 painter = painterResource(id = R.drawable.add),
                 contentDescription = "Add Card"
             )
