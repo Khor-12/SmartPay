@@ -24,4 +24,10 @@ class UserStore(private val context: Context) {
             preferences[USER_VERIFIED] = token
         }
     }
+
+    suspend fun clearDataStore() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
 }

@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
@@ -164,4 +165,64 @@ class AuthRepositoryImpl @Inject constructor(
         )
 
     override fun signOut() = auth.signOut()
+
+    override suspend fun performDeleteAccount(): Flow<Resource<Boolean>> = callbackFlow {
+        val userRef = db.collection("users").document(currentUser?.uid ?: "")
+        val batch = db.batch()
+
+        db.collection("users").document(currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { userSnapshot ->
+                val arrayField = userSnapshot.get("qrCodes") as? List<String>
+
+                arrayField?.forEach { c ->
+                    val cardRef = db.collection("Cards").document(c)
+                    batch.delete(cardRef)
+                }
+
+                // Commit the batch operation
+                batch.commit()
+                    .addOnSuccessListener {
+                        // Batch deletion successful
+                        userRef.delete()
+                            .addOnSuccessListener {
+                                // User document deletion successful
+                                currentUser?.delete()
+                                    ?.addOnSuccessListener {
+                                        // User account deletion successful
+                                        launch {
+                                            send(Resource.Success(true))
+                                        }
+                                    }
+                                    ?.addOnFailureListener { exception ->
+                                        // Handle user account deletion failure
+                                        launch {
+                                            send(Resource.Error(exception.message.toString()))
+                                        }
+                                    }
+                            }
+                            .addOnFailureListener { exception ->
+                                // Handle user document deletion failure
+                                launch {
+                                    send(Resource.Error(exception.message.toString()))
+                                }
+                            }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle batch deletion failure
+                        launch {
+                            send(Resource.Error(exception.message.toString()))
+                        }
+                    }
+            }
+            .addOnFailureListener { exception ->
+                // Handle user document retrieval failure
+                launch {
+                    send(Resource.Error(exception.message.toString()))
+                }
+            }
+
+        awaitClose { }
+    }
+
 }

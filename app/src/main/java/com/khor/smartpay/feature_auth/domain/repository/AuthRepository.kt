@@ -36,6 +36,8 @@ interface AuthRepository {
 
     fun signOut()
 
+    suspend fun performDeleteAccount(): Flow<Resource<Boolean>>
+
     fun startScanning(): Flow<String?>
 
     fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse
