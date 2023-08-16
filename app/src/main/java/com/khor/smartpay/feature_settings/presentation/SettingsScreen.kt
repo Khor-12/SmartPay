@@ -1,6 +1,5 @@
 package com.khor.smartpay.feature_settings.presentation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,13 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,14 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.khor.smartpay.R
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.presentation.components.CustomTopAppBar
-import com.khor.smartpay.core.presentation.selectedColorScheme
 import com.khor.smartpay.feature_settings.presentation.component.DialogItem
 import kotlinx.coroutines.launch
 
@@ -55,7 +50,7 @@ fun SettingsScreen(
     val state = viewModel.state
     var openDialog by remember { mutableStateOf(false) }
     val store = UserStore(LocalContext.current)
-    val colorSchemeOptions = listOf("System Theme", "Dark Theme", "Light Theme")
+    val selectedColorScheme = store.getColorScheme.collectAsState(initial = 0).value
 
     CustomTopAppBar(
         navController = navController, icon = Icons.Default.ArrowBack, title = "Settings"
@@ -276,23 +271,29 @@ fun SettingsScreen(
         AlertDialog(onDismissRequest = { openDialog = false }, text = {
             Column {
                 DialogItem(text = "System (Default)",
-                    isSelected = selectedColorScheme == 2,
+                    isSelected = selectedColorScheme == 0,
                     onSelected = {
-                        selectedColorScheme = 2
+                        viewModel.viewModelScope.launch {
+                            store.saveColorScheme(0)
+                        }
                         openDialog = false
                     }
                 )
                 DialogItem(text = "Light",
                     isSelected = selectedColorScheme == 1,
                     onSelected = {
-                        selectedColorScheme = 1
+                        viewModel.viewModelScope.launch {
+                            store.saveColorScheme(1)
+                        }
                         openDialog = false
                     }
                 )
                 DialogItem(text = "Dark",
-                    isSelected = selectedColorScheme == 0,
+                    isSelected = selectedColorScheme == 2,
                     onSelected = {
-                        selectedColorScheme = 0
+                        viewModel.viewModelScope.launch {
+                            store.saveColorScheme(2)
+                        }
                         openDialog = false
                     }
                 )

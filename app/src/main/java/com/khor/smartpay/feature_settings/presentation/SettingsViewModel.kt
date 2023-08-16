@@ -27,6 +27,7 @@ class SettingsViewModel @Inject constructor(
         state.phoneNumber = authRepository.currentUser?.phoneNumber ?: ""
     }
 
+
     fun onEvent(event: SettingsEvents) {
         when (event) {
             SettingsEvents.SignOutUser -> {
