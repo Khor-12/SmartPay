@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.khor.smartpay.R
 import com.khor.smartpay.feature_transaction.domain.model.TransactionDetail
 import java.text.NumberFormat
@@ -87,7 +88,7 @@ fun TransactionCard(
                     .weight(3f)
                     .padding(16.dp)
             ) {
-                Text(text = transactionDetailType, fontWeight = FontWeight.Bold)
+                Text(text = transactionDetailType, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(transactionDetail.dateTime, style = MaterialTheme.typography.bodySmall)
             }

@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_payment.components
+package com.khor.smartpay.feature_payment.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,11 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.khor.smartpay.feature_payment.PaymentScreenEvent
-import com.khor.smartpay.feature_payment.PaymentViewModel
+import com.khor.smartpay.feature_payment.presentation.PaymentScreenEvent
+import com.khor.smartpay.feature_payment.presentation.PaymentViewModel
 
 @Composable
 fun PaymentButtonContainer(
+    viewModel: PaymentViewModel,
     modifier: Modifier,
     onEvent: (PaymentScreenEvent) -> Unit
 ) {
@@ -183,7 +184,9 @@ fun PaymentButtonContainer(
             }
         }
         Button(
-            onClick = { }, modifier = Modifier
+            onClick = {
+                viewModel.makePayment()
+            }, modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
                 .height(60.dp)

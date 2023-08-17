@@ -42,7 +42,7 @@ class QrCodeRepositoryImpl @Inject constructor(
                             userDocument.update("qrCodes", FieldValue.arrayUnion(qrCode))
                                 .addOnSuccessListener {
                                     // navigate to Home screen
-                                    cardReference.set(Card(qrCode = qrCode))
+                                    cardReference.set(Card(qrCode = qrCode, userId = userUid))
                                     launch {
                                         send(Resource.Success(true))
                                     }
@@ -76,7 +76,8 @@ class QrCodeRepositoryImpl @Inject constructor(
                                 Card(
                                     qrCode = document.getString("qrCode") as String,
                                     isFrozen = document.getBoolean("frozen") as Boolean,
-                                    limit = document.getDouble("limit") as Double
+                                    limit = document.getDouble("limit") as Double,
+                                    userId = document.getString("userId") as String
                                 )
                             )
                             // Emit the success response for each document retrieval

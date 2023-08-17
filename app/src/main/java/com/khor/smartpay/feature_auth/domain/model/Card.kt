@@ -4,4 +4,5 @@ data class Card(
     val qrCode: String = "",
     val isFrozen: Boolean = false,
     val limit: Double = 0.0,
+    val userId: String
 )

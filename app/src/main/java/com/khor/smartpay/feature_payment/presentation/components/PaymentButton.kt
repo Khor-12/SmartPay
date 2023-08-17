@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_payment.components
+package com.khor.smartpay.feature_payment.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

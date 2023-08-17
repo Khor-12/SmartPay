@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import com.khor.smartpay.R
 import com.khor.smartpay.feature_cards.presentation.CardsScreen
 import com.khor.smartpay.feature_home.presentation.HomeScreen
-import com.khor.smartpay.feature_payment.PaymentScreen
+import com.khor.smartpay.feature_payment.presentation.PaymentScreen
 import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)

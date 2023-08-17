@@ -17,6 +17,7 @@ import com.khor.smartpay.feature_auth.domain.model.Card
 import com.khor.smartpay.feature_auth.domain.model.SmartUser
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import com.khor.smartpay.feature_auth.domain.repository.AuthStateResponse
+import com.khor.smartpay.feature_transaction.domain.model.TransactionDetail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -105,7 +106,8 @@ class AuthRepositoryImpl @Inject constructor(
                                 userDocument.set(user)
                                     .addOnSuccessListener {
                                         // navigate to Home screen
-                                        cardReference.set(Card(qrCode = qrCode))
+                                        userDocument.collection("Transactions")
+                                        cardReference.set(Card(qrCode = qrCode, userId = currentUser!!.uid))
                                         launch {
                                             send(Resource.Success("User $userId created successfully."))
                                         }

@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_payment
+package com.khor.smartpay.feature_payment.presentation
 
 sealed class PaymentScreenEvent {
     data class Number(val number: Int): PaymentScreenEvent()
@@ -6,4 +6,5 @@ sealed class PaymentScreenEvent {
     object Clear: PaymentScreenEvent()
     object Delete:  PaymentScreenEvent()
     object Decimal: PaymentScreenEvent()
+    data class ChangeAlert(val state: Boolean): PaymentScreenEvent()
 }

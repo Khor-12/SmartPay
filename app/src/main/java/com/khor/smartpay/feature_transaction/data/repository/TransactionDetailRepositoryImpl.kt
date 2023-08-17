@@ -44,8 +44,8 @@ class TransactionDetailRepositoryImpl @Inject constructor(
                         transactionType = document.getString("transactionType") ?: "",
                         from = document.getString("from") ?: "",
                         to = document.getString("to") ?: "",
-                        amount = document.getDouble("amount")?.toString() ?: "",
-                        dateTime = document.getTimestamp("dateTime")?.toDate()?.toSimpleDate() ?: ""
+                        amount = document.getString("amount") ?: "",
+                        dateTime = document.getString("dateTime")?.toSimpleDate() ?: ""
                     )
                 )
             }
