@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -92,10 +93,10 @@ fun PaymentScreen() {
         AlertDialog(
             onDismissRequest = { viewModel.onEvent(PaymentScreenEvent.ChangeAlert(false)) },
             text = {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         colorFilter = if (state.transactionError) ColorFilter.tint(MaterialTheme.colorScheme.error)
-                        else ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                        else ColorFilter.tint(Color(0xFF4CAF50)),
                         painter = if (state.transactionError) painterResource(R.drawable.error_circle)
                         else painterResource(R.drawable.check_circle), contentDescription = null
                     )
@@ -104,12 +105,6 @@ fun PaymentScreen() {
 
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.onEvent(PaymentScreenEvent.ChangeAlert(false))
-                    }) {
-                    Text("Close")
-                }
             }
         )
     }
