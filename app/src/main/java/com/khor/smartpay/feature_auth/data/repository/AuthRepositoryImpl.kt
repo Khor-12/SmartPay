@@ -12,6 +12,7 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
+import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Resource
 import com.khor.smartpay.feature_auth.domain.model.Card
 import com.khor.smartpay.feature_auth.domain.model.SmartUser
@@ -23,7 +24,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -151,7 +156,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse =
+    override fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse =
         callbackFlow {
             val authStateListener = FirebaseAuth.AuthStateListener { auth ->
                 trySend(auth.currentUser == null)
@@ -160,6 +165,13 @@ class AuthRepositoryImpl @Inject constructor(
             awaitClose {
                 auth.removeAuthStateListener(authStateListener)
             }
+        }.map { isUserSignedOut ->
+            var isUserVerified = false
+            store.getAccessToken.collect {
+                isUserVerified = isUserSignedOut && it
+            }
+            isUserVerified
+//            val isUserVerified = store.getAccessToken // Replace with the method to fetch verification status
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),

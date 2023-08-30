@@ -61,9 +61,10 @@ fun CodeInputField(
             placeholder = {
                 Text(
                     text = "------",
-                    modifier = Modifier.alpha(0.5f),
+                    modifier = Modifier.alpha(0.5f).fillMaxWidth(),
                     fontSize = 24.sp,
                     letterSpacing = 20.sp,
+                    textAlign = TextAlign.Center
                 )
             },
             textStyle = TextStyle.Default.copy(fontSize = 24.sp, letterSpacing = 14.sp),

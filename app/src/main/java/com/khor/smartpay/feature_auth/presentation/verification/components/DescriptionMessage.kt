@@ -20,7 +20,7 @@ fun DescriptionMessage(
     Text(
         modifier = modifier,
         text = buildAnnotatedString {
-            append("Enter the verification code we sent to")
+            append("Enter the verification code we sent to\n")
             append(" ")
             withStyle(
                 SpanStyle(

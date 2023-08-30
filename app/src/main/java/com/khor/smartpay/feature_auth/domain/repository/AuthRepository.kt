@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -40,5 +41,5 @@ interface AuthRepository {
 
     fun startScanning(): Flow<String?>
 
-    fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse
+    fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse
 }

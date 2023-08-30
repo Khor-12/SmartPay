@@ -26,10 +26,11 @@ class PaymentRepositoryImpl @Inject constructor(
     private val userUid = authRepository.currentUser!!.uid
 
     override suspend fun makePayment(amount: Double): Flow<Resource<String>> = callbackFlow {
-        send(Resource.Loading(true))
 
         authRepository.startScanning().collect { qrCode ->
             qrCode?.let { qrCodeValue ->
+                send(Resource.Loading(true))
+
                 db.collection("Cards").document(qrCodeValue).get()
                     .addOnSuccessListener { cardSnapShot ->
                         if (cardSnapShot.exists()) {
@@ -85,7 +86,7 @@ class PaymentRepositoryImpl @Inject constructor(
                             }
                         }
 
-                    }.addOnFailureListener { }
+                    }.addOnFailureListener {}
             }
         }
 

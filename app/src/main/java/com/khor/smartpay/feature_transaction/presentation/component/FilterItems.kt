@@ -1,8 +1,11 @@
 package com.khor.smartpay.feature_auth.feature_transaction.presentation.component
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,10 +21,12 @@ fun FilterItems(
     transactionOrder: TransactionOrder = TransactionOrder.All
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        modifier = modifier
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         ChipFilter(
+            modifier = Modifier.padding(start = 16.dp),
             sortTypeName = "All",
             onChipClicked = {
                 viewModel.onEvent(TransactionsEvent.Order(TransactionOrder.All))
@@ -54,6 +59,7 @@ fun FilterItems(
             isSelected = transactionOrder is TransactionOrder.Deposit
         )
         ChipFilter(
+            modifier = Modifier.padding(end = 16.dp),
             sortTypeName = "Withdraw",
             onChipClicked = {
                 viewModel.onEvent(TransactionsEvent.Order(TransactionOrder.Withdraw))

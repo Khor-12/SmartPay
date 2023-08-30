@@ -66,15 +66,15 @@ class PaymentViewModel @Inject constructor(
                 paymentRepository.makePayment(state.amount!!.toDouble())
                     .onEach { result ->
                         when (result) {
+                            is Resource.Loading -> state = state.copy(
+                                transactionIsLoading = true
+                            )
+
                             is Resource.Error -> state = state.copy(
                                 transactionError = true,
                                 transactionMessage = result.message ?: "",
                                 transactionIsLoading = false,
                                 showAlertDialog = true
-                            )
-
-                            is Resource.Loading -> state = state.copy(
-                                transactionIsLoading = true
                             )
 
                             is Resource.Success -> state = state.copy(

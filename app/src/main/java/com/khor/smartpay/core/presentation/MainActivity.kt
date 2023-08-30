@@ -1,6 +1,8 @@
 package com.khor.smartpay.core.presentation
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.khor.smartpay.core.data.prefdatastore.UserStore
@@ -34,23 +38,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val store = UserStore(LocalContext.current)
+            LaunchedEffect(key1 = Unit) {
+                viewModel.getColorScheme(store)
+            }
+            store.getAccessToken
             SmartPayTheme(
-                darkTheme = UserStore(LocalContext.current).getColorScheme.collectAsState(
-                    initial = 0
-                ).value == 2
+//                viewModel.state.currentTheme == 2
             ) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val store = UserStore(LocalContext.current)
-                    val tokenBoolean = store.getAccessToken.collectAsState(initial = true).value
                     navController = rememberNavController()
                     Navigation(navController = navController)
-                    if (tokenBoolean) {
-                        AuthState()
-                    }
+                    AuthState()
                 }
             }
         }
@@ -58,7 +61,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun AuthState() {
-        val isUserSignedOut = viewModel.getAuthState().collectAsState().value
+        val store = UserStore(LocalContext.current)
+        val isUserSignedOut = viewModel.getAuthState(store).collectAsState().value
         if (isUserSignedOut) {
             NavigateToSignInScreen()
         } else {
@@ -79,4 +83,10 @@ class MainActivity : ComponentActivity() {
             inclusive = true
         }
     }
+
+    companion object {
+        private const val CAMERA_PERMISSION_REQUEST_CODE =
+            1001 // You can use any integer value here
+    }
+
 }

@@ -1,14 +1,17 @@
 package com.khor.smartpay.feature_auth.presentation.verification
 
 import android.app.Activity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -71,21 +74,6 @@ fun VerificationScreen(
         }
     }
 
-    if (showProgressIndicator) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 200.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .height(60.dp)
-                    .width(60.dp)
-            )
-        }
-
-    }
 
     if (openDialog) {
         AlertDialog(
@@ -103,31 +91,45 @@ fun VerificationScreen(
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        VerificationTitle(modifier = Modifier.padding(top = 60.dp))
-        DescriptionMessage(
-            modifier = Modifier.padding(24.dp),
-            phoneNumber = phoneNumber
-        )
-        CodeInputField(modifier = Modifier.padding(28.dp), viewModel) {
-            viewModel.onEvent(VerificationEvent.OnCodeResultChange(it))
-            if (it.length == 6) {
-                viewModel.signInWithCredentials(
-                    phoneAuthCredential = PhoneAuthProvider.getCredential(
-                        verificationId, it
-                    ),
+    Box(modifier = Modifier) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            VerificationTitle(modifier = Modifier.padding(top = 60.dp))
+            DescriptionMessage(
+                modifier = Modifier.padding(24.dp),
+                phoneNumber = phoneNumber
+            )
+            CodeInputField(modifier = Modifier.padding(28.dp), viewModel) {
+                viewModel.onEvent(VerificationEvent.OnCodeResultChange(it))
+                if (it.length == 6) {
+                    viewModel.signInWithCredentials(
+                        phoneAuthCredential = PhoneAuthProvider.getCredential(
+                            verificationId, it
+                        ),
+                        activity = localContext as Activity
+                    )
+                }
+            }
+            ResendTextButton(modifier = Modifier.padding(32.dp)) {
+                viewModel.resendVerificationCode(
+                    number = phoneNumber,
                     activity = localContext as Activity
                 )
             }
         }
-        ResendTextButton(modifier = Modifier.padding(32.dp)) {
-            viewModel.resendVerificationCode(
-                number = phoneNumber,
-                activity = localContext as Activity
-            )
+        if (showProgressIndicator) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(80.dp)
+                )
+            }
         }
     }
 }

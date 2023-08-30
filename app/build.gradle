@@ -85,7 +85,7 @@ dependencies {
     //Hilt Navigation Compose
     implementation "androidx.hilt:hilt-navigation-compose:$hilt_navigation_compose_version"
 
-    implementation 'com.google.android.gms:play-services-code-scanner:16.0.0'
+    implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
 
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 

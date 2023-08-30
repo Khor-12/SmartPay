@@ -64,7 +64,10 @@ fun TransactionsScreen() {
 
         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
             if (viewModel.state.value.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize().offset(y = (-50).dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator(modifier = Modifier.size(70.dp))
                 }
             } else {
