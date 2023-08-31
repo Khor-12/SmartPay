@@ -110,29 +110,33 @@ fun PaymentScreen() {
                             .weight(1f), verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         PaymentButton(
-                            value = "AC", modifier = Modifier
+                            value = "AC",
+                            modifier = Modifier
                                 .fillMaxSize()
-                                .weight(1f)
-                        ) {
-
-                        }
+                                .weight(1f),
+                            onClick = { viewModel.onEvent(PaymentScreenEvent.Clear) }
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         PaymentButton(
-                            value = "x", modifier = Modifier
+                            value = "x",
+                            modifier = Modifier
                                 .fillMaxSize()
-                                .weight(1f)
-                        ) {
-
-                        }
+                                .weight(1f),
+                            onClick = { viewModel.onEvent(PaymentScreenEvent.Delete) }
+                        )
                     }
                 }
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
-                    .padding(horizontal = 16.dp, vertical = 8.dp), contentAlignment = Alignment.TopStart) {
-                    Button(onClick = {  }, modifier = Modifier
-                        .fillMaxWidth()
-                        ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    Button(
+                        onClick = { viewModel.makePayment() }, modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
                         Text(text = "Confirm Payment", modifier = Modifier.padding(16.dp))
                     }
                 }

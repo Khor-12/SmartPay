@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Card
@@ -25,6 +26,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,6 +47,7 @@ import com.khor.smartpay.R
 import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_home.presentation.components.PaymentButton
+import com.khor.smartpay.feature_home.presentation.components.TransactionAlertDialog
 
 @Composable
 fun HomeScreen(
@@ -51,6 +55,13 @@ fun HomeScreen(
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val state = viewModel.state
+
+    val showDeposit = remember {
+        mutableStateOf(false)
+    }
+    val showWithdraw = remember {
+        mutableStateOf(false)
+    }
 
     StandardToolbar(
         title = { Text(state.phoneNumber, style = MaterialTheme.typography.titleMedium) },
@@ -66,11 +77,30 @@ fun HomeScreen(
                     contentDescription = "Settings"
                 )
             }
-        })
+        }
+    )
+
+    if (showDeposit.value) {
+        TransactionAlertDialog(
+            transactionType = "DEPOSIT",
+            onClick = { },
+            errorMessage = "",
+            showDeposit
+        )
+    }
+    if (showWithdraw.value) {
+        TransactionAlertDialog(
+            transactionType = "WITHDRAW",
+            onClick = { },
+            errorMessage = "",
+            showWithdraw
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Card(modifier = Modifier.fillMaxWidth()) {
@@ -112,13 +142,15 @@ fun HomeScreen(
         ) {
             PaymentButton(
                 modifier = Modifier.weight(1f),
-                onClick = { },
+                onClick = {
+                    showDeposit.value = true
+                },
                 icon = painterResource(R.drawable.down_arrow),
                 title = "DEPOSIT"
             )
             PaymentButton(
                 modifier = Modifier.weight(1f),
-                onClick = { },
+                onClick = { showWithdraw.value = true },
                 icon = painterResource(R.drawable.up_arrow),
                 title = "WITHDRAW"
             )

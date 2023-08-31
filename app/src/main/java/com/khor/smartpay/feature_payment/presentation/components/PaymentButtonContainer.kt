@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.times
 import com.khor.smartpay.feature_payment.presentation.PaymentScreenEvent
 import com.khor.smartpay.feature_payment.presentation.PaymentUiAction
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PaymentButtonContainer(
     actions: List<PaymentUiAction>,
@@ -43,7 +42,7 @@ fun PaymentButtonContainer(
                     PaymentButton(
                         value = action.text,
                         modifier = Modifier.aspectRatio(1f),
-                        onClick = { }
+                        onClick = { onEvent(action.action) }
                     )
                 }
             }

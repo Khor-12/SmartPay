@@ -18,5 +18,4 @@ class HomeScreenViewModel @Inject constructor(
         state.phoneNumber = authRepository.currentUser?.phoneNumber ?: ""
     }
 
-
 }

@@ -24,7 +24,7 @@ fun PaymentButton(
         onClick = onClick,
         modifier = modifier
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = icon,
                 contentDescription = null,
