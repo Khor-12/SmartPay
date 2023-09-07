@@ -23,6 +23,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.presentation.components.Navigation
 import com.khor.smartpay.core.presentation.ui.theme.SmartPayTheme
@@ -37,6 +40,23 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("RememberReturnType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        val moduleInstall = ModuleInstall.getClient(this)
+        val moduleInstallRequest = ModuleInstallRequest.newBuilder()
+            .addApi(GmsBarcodeScanning.getClient(this))
+            .build()
+        moduleInstall
+            .installModules(moduleInstallRequest)
+            .addOnSuccessListener {
+                if (it.areModulesAlreadyInstalled()) {
+                    // Modules are already installed when the request is sent.
+                }
+            }
+            .addOnFailureListener {
+                // Handle failure…
+            }
+
         setContent {
             val store = UserStore(LocalContext.current)
             LaunchedEffect(key1 = Unit) {

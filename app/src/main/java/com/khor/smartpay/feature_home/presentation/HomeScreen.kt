@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,6 +49,8 @@ import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_home.presentation.components.PaymentButton
 import com.khor.smartpay.feature_home.presentation.components.TransactionAlertDialog
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun HomeScreen(
@@ -61,6 +64,10 @@ fun HomeScreen(
     }
     val showWithdraw = remember {
         mutableStateOf(false)
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getCurrentBalance()
     }
 
     StandardToolbar(
@@ -120,7 +127,9 @@ fun HomeScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 12.dp),
                 text = buildAnnotatedString {
-                    append("15,000")
+                    append(NumberFormat.getNumberInstance(Locale.US).format(
+                        state.currentBalance.toDouble()
+                    ))
                     withStyle(
                         SpanStyle(
                             fontSize = 14.sp,
