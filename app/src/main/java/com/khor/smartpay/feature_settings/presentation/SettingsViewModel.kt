@@ -31,7 +31,16 @@ class SettingsViewModel @Inject constructor(
     fun onEvent(event: SettingsEvents) {
         when (event) {
             SettingsEvents.SignOutUser -> {
+                state = state.copy(
+                    signingOut = true
+                )
                 authRepository.signOut()
+                if (authRepository.currentUser == null) {
+                    state = state.copy(
+                        userIsSignedOut = true,
+                        signingOut = false
+                    )
+                }
             }
         }
     }

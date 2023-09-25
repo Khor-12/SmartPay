@@ -14,8 +14,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Resource
+import com.khor.smartpay.core.util.getCurrentTime
 import com.khor.smartpay.feature_auth.domain.model.Card
 import com.khor.smartpay.feature_auth.domain.model.SmartUser
+import com.khor.smartpay.feature_auth.domain.model.UserSell
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import com.khor.smartpay.feature_auth.domain.repository.AuthStateResponse
 import com.khor.smartpay.feature_transaction.domain.model.TransactionDetail
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import java.net.HttpRetryException
 import java.util.concurrent.TimeUnit
@@ -112,7 +115,12 @@ class AuthRepositoryImpl @Inject constructor(
                                     .addOnSuccessListener {
                                         // navigate to Home screen
                                         userDocument.collection("Transactions")
-                                        cardReference.set(Card(qrCode = qrCode, userId = currentUser!!.uid))
+                                        cardReference.set(
+                                            Card(
+                                                qrCode = qrCode,
+                                                userId = currentUser!!.uid
+                                            )
+                                        )
                                         launch {
                                             send(Resource.Success("User $userId created successfully."))
                                         }
@@ -155,6 +163,121 @@ class AuthRepositoryImpl @Inject constructor(
             awaitClose { }
         }
     }
+
+    override suspend fun getCurrentReference(): Flow<Resource<Double>> = callbackFlow {
+        val docRef = db.collection("Reference").document("smart-pay-deposit-reference-count")
+
+        docRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val fieldValue = documentSnapshot.getDouble("ReferenceCount")
+                    if (fieldValue != null) {
+                        launch {
+                            send(Resource.Success(fieldValue))
+                            docRef.update("ReferenceCount", fieldValue + 1)
+                        }
+                    } else { /* field not found */
+                    }
+                } else { /* Document not found */
+                }
+            }
+            .addOnFailureListener { }
+
+        awaitClose { }
+    }
+
+    override suspend fun makeDeposit(amount: Double, phoneNumber: String) {
+        val currentUserTransactionsRef =
+            db.collection("users").document(currentUser!!.uid).collection("Transactions")
+
+        currentUserTransactionsRef.add(
+            TransactionDetail(
+                transactionType = "DEPOSIT",
+                from = phoneNumber,
+                to = "SmartPayAccount",
+                dateTime = getCurrentTime(),
+                amount = amount.toString()
+            )
+        ).addOnSuccessListener {}
+            .addOnFailureListener {}
+    }
+
+    override suspend fun checkUserExistenceInDb(): Flow<Resource<Boolean>> = callbackFlow {
+
+        val userDocument = db.collection("users").document(auth.currentUser?.uid!!)
+
+        userDocument.get()
+            .addOnSuccessListener { userSnapshot ->
+                launch { send(Resource.Loading(true)) }
+                if (userSnapshot.exists()) {
+                    // login the user
+                    launch {
+                        send(Resource.Loading(false))
+                    }
+                    launch {
+                        send(Resource.Success(true))
+                    }
+                } else {
+                    // creating the user
+                    launch {
+                        send(Resource.Success(false))
+                    }
+                }
+            }
+
+        awaitClose { }
+    }
+
+    override suspend fun createUserWithCode(pinCode: String): Flow<Resource<String>> =
+        callbackFlow {
+
+            val userDocument = db.collection("users").document(auth.currentUser!!.uid)
+            val userSell = UserSell(pinCode = pinCode)
+
+            send(Resource.Loading(true))
+            userDocument.set(userSell)
+                .addOnSuccessListener {
+                    launch {
+                        send(Resource.Loading(false))
+                    }
+                    launch {
+                        send(Resource.Success("User successfully created"))
+                    }
+                }
+                .addOnFailureListener { }
+
+
+            awaitClose { }
+        }
+
+    override suspend fun loginUserWithCode(pinCode: String): Flow<Resource<String>> = callbackFlow {
+        val userDocument = db.collection("users").document(auth.currentUser!!.uid)
+
+        send(Resource.Loading(true))
+
+        userDocument.get()
+            .addOnSuccessListener { userSnapshot ->
+                if (userSnapshot.exists()) {
+                    val userPinCode = userSnapshot.getString("pinCode")
+                    if (pinCode == userPinCode) {
+                        // login user
+                        launch {
+                            send(Resource.Success("login successfully"))
+                        }
+                    } else {
+                        // register
+                        launch {
+                            send(Resource.Error("Invalid credential"))
+                        }
+                    }
+                } else {
+                    // document doesn't exits
+                }
+            }
+
+        awaitClose { }
+    }
+
 
     override fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse =
         callbackFlow {

@@ -1,134 +1,62 @@
 package com.khor.smartpay.feature_auth.presentation.welcome
 
-import android.annotation.SuppressLint
-import android.app.Activity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.khor.smartpay.feature_auth.presentation.welcome.components.PhoneNumberInputField
-import com.khor.smartpay.feature_auth.presentation.welcome.components.SmartPayHeader
-import kotlinx.coroutines.flow.collectLatest
+import androidx.navigation.NavController
+import com.khor.smartpay.core.util.Screen
+import com.khor.smartpay.feature_auth.presentation.phone_number_input.components.SmartPayHeader
 
-@SuppressLint("ShowToast")
 @Composable
-fun WelcomeScreen(
-    viewModel: WelcomeScreenViewModel = hiltViewModel(),
-    navigateToVerificationScreen: (String, String) -> Unit
-) {
-    val localContext = LocalContext.current
-
-    var openDialog by remember { mutableStateOf(false) }
-    var showProgressIndicator by remember { mutableStateOf(false) }
-    var openDialogMessage by remember { mutableStateOf("") }
-    LaunchedEffect(key1 = true) {
-        viewModel.eventFlow.collectLatest { event ->
-            when (event) {
-                is WelcomeScreenViewModel.UiEvent.ShowAlertDialog -> {
-                    openDialog = event.showDialog
-                    openDialogMessage = event.message
-                    showProgressIndicator = false
-                }
-
-                is WelcomeScreenViewModel.UiEvent.ShowProgressIndicator -> {
-                    showProgressIndicator = true
-                }
-            }
-        }
-    }
-
-    if (openDialog) {
-        AlertDialog(
-            onDismissRequest = { openDialog = false },
-            title = { Text(text = "Error") },
-            text = { Text(openDialogMessage, fontSize = 18.sp) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        openDialog = false
-                    }) {
-                    Text("Close")
-                }
-            }
-        )
-    }
-
-    Box(modifier = Modifier) {
-
-
+fun WelcomeScreen(navController: NavController) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.spacedBy(150.dp)
         ) {
             SmartPayHeader(
                 modifier = Modifier.padding(top = 100.dp),
                 subTitle = "Need Cashless Payment"
             )
-            PhoneNumberInputField(modifier = Modifier.padding(top = 60.dp), viewModel = viewModel)
-            Button(
+            Column(
                 modifier = Modifier
-                    .width(280.dp)
-                    .height(50.dp)
-                    .offset(y = 30.dp),
-                enabled = viewModel.state.isEnable,
-                onClick = {
-                    viewModel.sendVerificationCode(
-                        number = "+256${viewModel.state.phoneNumber}",
-                        localContext as Activity,
-                        navigateToVerificationScreen
-                    )
+                    .fillMaxWidth()
+                    .padding(horizontal = 50.dp), verticalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Log in", modifier = Modifier.padding(8.dp))
                 }
-            ) {
-                Text(
-                    text = "Continue",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-
-        }
-
-        if (showProgressIndicator) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(80.dp)
-                )
+                Button(onClick = {
+                    navController.navigate(Screen.UserSelectionScreen.route)
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Sign up", modifier = Modifier.padding(8.dp))
+                }
             }
         }
     }

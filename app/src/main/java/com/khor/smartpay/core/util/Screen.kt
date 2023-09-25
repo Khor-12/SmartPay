@@ -1,6 +1,7 @@
 package com.khor.smartpay.core.util
 
 sealed class Screen(val route: String) {
+    object PhoneNumberInputScreen: Screen("phone_number_input_screen")
     object WelcomeScreen: Screen("welcome_screen")
     object VerificationScreen: Screen("verification_screen")
     object HomeScreen: Screen("home_screen")
@@ -9,4 +10,8 @@ sealed class Screen(val route: String) {
     object TransactionsScreen: Screen("Transactions_screen")
     object InternalScreen: Screen("internal_screen")
     object SettingsScreen: Screen("settings_screen")
+    object UserSelectionScreen: Screen("user_selection_screen")
+    object CreateCodeScreen: Screen("create_code_screen")
+    object EnterCodeScreen: Screen("enter_code_screen")
+    object ConfirmCodeScreen: Screen("confirm_code_screen")
 }

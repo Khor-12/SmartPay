@@ -1,53 +1,55 @@
-package com.khor.smartpay.feature_auth.presentation.verification
+package com.khor.smartpay.feature_auth.presentation.enter_code
 
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.google.firebase.auth.PhoneAuthProvider
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Screen
-import com.khor.smartpay.feature_auth.presentation.verification.components.CodeInputField
-import com.khor.smartpay.feature_auth.presentation.verification.components.DescriptionMessage
-import com.khor.smartpay.feature_auth.presentation.verification.components.ResendTextButton
-import com.khor.smartpay.feature_auth.presentation.verification.components.VerificationTitle
-import kotlinx.coroutines.delay
+import com.khor.smartpay.feature_auth.presentation.create_code.component.CreateCodeInput
+import com.khor.smartpay.feature_auth.presentation.verification.VerificationEvent
+import com.khor.smartpay.feature_auth.presentation.verification.VerificationViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerificationScreen(
-    navController: NavController,
-    viewModel: VerificationViewModel = hiltViewModel(),
-    verificationId: String,
-    phoneNumber: String,
-    userType: String
-) {
+fun EnterCode(navController: NavController) {
+    val viewModel: VerificationViewModel = hiltViewModel()
+
     val localContext = LocalContext.current
     val store = UserStore(localContext)
 
@@ -84,11 +86,13 @@ fun VerificationScreen(
         }
     }
 
+    val state = viewModel.state
+    val focusRequester = remember { FocusRequester() }
+
 
     if (openDialog) {
         AlertDialog(
             onDismissRequest = { openDialog = false },
-            title = { Text(text = "Error") },
             text = { Text(openDialogMessage, fontSize = 18.sp) },
             confirmButton = {
                 TextButton(
@@ -101,35 +105,50 @@ fun VerificationScreen(
         )
     }
 
-    Box(modifier = Modifier) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 60.dp), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            VerificationTitle(modifier = Modifier.padding(top = 60.dp))
-            DescriptionMessage(
-                modifier = Modifier.padding(24.dp),
-                phoneNumber = phoneNumber
+            Text(
+                modifier = Modifier,
+                text = "Enter your four digit pin code",
+                style = MaterialTheme.typography.headlineSmall
             )
-            CodeInputField(modifier = Modifier.padding(28.dp), viewModel = viewModel) {
-                viewModel.onEvent(VerificationEvent.OnCodeResultChange(it))
-                if (it.length == 6) {
-                    viewModel.signInWithCredentials(
-                        phoneAuthCredential = PhoneAuthProvider.getCredential(
-                            verificationId, it
-                        ),
-                        activity = localContext as Activity,
-                        userType = userType
-                    )
-                }
-            }
-            ResendTextButton(modifier = Modifier.padding(32.dp)) {
-                viewModel.resendVerificationCode(
-                    number = phoneNumber,
-                    activity = localContext as Activity
+            Spacer(modifier = Modifier.height(40.dp))
+            Box(modifier = Modifier) {
+                TextField(
+                    modifier = Modifier
+                        .width(150.dp)
+                        .focusRequester(focusRequester),
+                    value = state.pinCode,
+                    onValueChange = {
+                        viewModel.onEvent(VerificationEvent.OnPinCodeChange(it))
+                        if (it.length == 4) {
+                            viewModel.loginUser(it)
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    singleLine = true,
+                    placeholder = {
+                        Text(
+                            text = "----",
+                            modifier = Modifier
+                                .alpha(0.5f)
+                                .fillMaxWidth(),
+                            fontSize = 24.sp,
+                            letterSpacing = 20.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    textStyle = TextStyle.Default.copy(fontSize = 24.sp, letterSpacing = 14.sp),
                 )
             }
         }
+
         if (showProgressIndicator) {
             Box(
                 modifier = Modifier

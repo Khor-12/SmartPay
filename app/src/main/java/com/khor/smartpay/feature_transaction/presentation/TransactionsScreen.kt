@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -25,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.khor.smartpay.R
 import com.khor.smartpay.core.presentation.components.StandardToolbar
-import com.khor.smartpay.feature_auth.feature_transaction.presentation.component.FilterItems
+import com.khor.smartpay.feature_transaction.presentation.component.FilterItems
 import com.khor.smartpay.feature_transaction.presentation.component.TransactionCard
 
 @Composable
@@ -56,7 +55,7 @@ fun TransactionsScreen() {
             FilterItems(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp),
+                    .padding(start = 16.dp, bottom = 12.dp),
                 viewModel = viewModel,
                 transactionOrder = viewModel.state.value.transactionOrder
             )

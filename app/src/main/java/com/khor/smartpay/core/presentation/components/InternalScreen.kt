@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.khor.smartpay.R
 import com.khor.smartpay.feature_cards.presentation.CardsScreen
+import com.khor.smartpay.feature_home.domain.repository.EasyPayApi
 import com.khor.smartpay.feature_home.presentation.HomeScreen
 import com.khor.smartpay.feature_payment.presentation.PaymentScreen
 import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
@@ -28,7 +29,7 @@ import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AppContent(navController: NavController) {
+fun AppContent(navController: NavController, easyPayApi: EasyPayApi) {
     var currentScreen by rememberSaveable { mutableStateOf(InternalScreen.Home) }
 
     Scaffold(
@@ -38,7 +39,7 @@ fun AppContent(navController: NavController) {
             }
         }
     ) {
-        ScreenContent(currentScreen, navController)
+        ScreenContent(currentScreen, navController, easyPayApi)
     }
 }
 
@@ -87,11 +88,11 @@ fun BottomNavigationBar(currentScreen: InternalScreen, onScreenSelected: (Intern
 }
 
 @Composable
-fun ScreenContent(screen: InternalScreen, navController: NavController) {
+fun ScreenContent(screen: InternalScreen, navController: NavController, easyPayApi: EasyPayApi) {
     Column {
         when (screen) {
             InternalScreen.Home -> {
-                HomeScreen(navController)
+                HomeScreen(navController, easyPayApi)
             }
 
             InternalScreen.Payment -> {

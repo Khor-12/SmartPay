@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Card
@@ -27,8 +29,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,8 +49,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.khor.smartpay.R
+import com.khor.smartpay.SmartPayApplication
 import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.core.util.Screen
+import com.khor.smartpay.feature_home.domain.model.DepositPayload
+import com.khor.smartpay.feature_home.domain.repository.EasyPayApi
 import com.khor.smartpay.feature_home.presentation.components.PaymentButton
 import com.khor.smartpay.feature_home.presentation.components.TransactionAlertDialog
 import java.text.NumberFormat
@@ -54,10 +61,14 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
+    easyPayApi: EasyPayApi
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val state = viewModel.state
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("2023") }
 
     val showDeposit = remember {
         mutableStateOf(false)
@@ -87,20 +98,38 @@ fun HomeScreen(
         }
     )
 
+
+
     if (showDeposit.value) {
         TransactionAlertDialog(
             transactionType = "DEPOSIT",
-            onClick = { },
-            errorMessage = "",
-            showDeposit
+            onClick = {
+                state.isLoading = true
+                viewModel.getReferenceCount()
+                if (state.referenceCount != null) {
+                    val payload = DepositPayload(
+                        amount = viewModel.state.depositAmount.toInt(),
+                        phone = "256${viewModel.state.textFieldPhoneNumber.substring(1)}",
+                        reference = state.referenceCount.toInt()
+                    )
+                    viewModel.makeDeposit(easyPayApi, payload)
+                }
+            },
+            errorMessage = state.depositErrorMsg,
+            showDeposit,
+            viewModel
         )
     }
+
     if (showWithdraw.value) {
         TransactionAlertDialog(
             transactionType = "WITHDRAW",
-            onClick = { },
+            onClick = {
+
+            },
             errorMessage = "",
-            showWithdraw
+            showWithdraw,
+            viewModel
         )
     }
 
@@ -127,9 +156,11 @@ fun HomeScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 12.dp),
                 text = buildAnnotatedString {
-                    append(NumberFormat.getNumberInstance(Locale.US).format(
-                        state.currentBalance.toDouble()
-                    ))
+                    append(
+                        NumberFormat.getNumberInstance(Locale.US).format(
+                            state.currentBalance.toDouble()
+                        )
+                    )
                     withStyle(
                         SpanStyle(
                             fontSize = 14.sp,
@@ -190,18 +221,39 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Text(
-                        "2023",
+                        selectedOption,
                         modifier = Modifier.padding(top = 3.dp),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
-                    IconButton(onClick = {}, modifier = Modifier.offset(y = (-10).dp)) {
-                        Icon(
-                            imageVector = Icons.Filled.DateRange,
-                            contentDescription = "pick year"
-                        )
+                    Column {
+                        IconButton(
+                            onClick = { expanded = !expanded },
+                            modifier = Modifier.offset(y = (-10).dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.DateRange,
+                                contentDescription = "pick year"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            // Create DropdownMenuItems
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedOption = "2023"
+                                    expanded = false
+                                }
+                            ) {
+                                Text(text = "2023")
+                            }
+                        }
                     }
+
                 }
+
             }
             Box(
                 modifier = Modifier
@@ -224,10 +276,13 @@ fun HomeScreen(
                             .alpha(0.8f)
                             .padding(start = 10.dp)
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 10.dp), verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("|", color = Color(0xFF4CAF50), fontSize = 26.sp)
                         Text(
-                            "32,000 Ush",
+                            "${state.totalIncome} Ush",
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold
                         )
@@ -242,10 +297,13 @@ fun HomeScreen(
                             .alpha(0.8f)
                             .padding(start = 10.dp)
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 10.dp), verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("|", color = MaterialTheme.colorScheme.error, fontSize = 26.sp)
                         Text(
-                            "12,000 Ush",
+                            "-${state.totalExpense} Ush",
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold
                         )

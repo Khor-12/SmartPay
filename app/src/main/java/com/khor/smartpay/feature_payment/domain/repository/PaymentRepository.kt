@@ -8,4 +8,8 @@ interface PaymentRepository {
     suspend fun makePayment(amount: Double): Flow<Resource<String>>
 
     suspend fun getTotalBalance(userUid: String): Flow<Double>
+
+    suspend fun getTotalIncome(): Flow<Double>
+
+    suspend fun getTotalExpense(): Flow<Double>
 }

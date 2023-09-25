@@ -112,6 +112,54 @@ class PaymentRepositoryImpl @Inject constructor(
         awaitClose { }
     }
 
+    override suspend fun getTotalIncome(): Flow<Double> = callbackFlow {
+        val db = authRepository.db!!
+        val currentUserUid = authRepository.currentUser!!.uid
+
+        val snapshot = db.collection("users")
+            .document(currentUserUid)
+            .collection("Transactions").get().await()
+
+        var totalAmount = 0.0
+        if (snapshot.isEmpty) {
+            send(totalAmount)
+        } else {
+            for (document in snapshot.documents) {
+                if (document.getString("transactionType") == "SELL") {
+                    totalAmount += document.getString("amount")?.toDouble() ?: 0.0
+                }
+            }
+        }
+
+        send(totalAmount)
+
+        awaitClose { }
+    }
+
+    override suspend fun getTotalExpense(): Flow<Double> = callbackFlow {
+        val db = authRepository.db!!
+        val currentUserUid = authRepository.currentUser!!.uid
+
+        val snapshot = db.collection("users")
+            .document(currentUserUid)
+            .collection("Transactions").get().await()
+
+        var totalAmount = 0.0
+        if (snapshot.isEmpty) {
+            send(totalAmount)
+        } else {
+            for (document in snapshot.documents) {
+                if (document.getString("transactionType") == "BUY") {
+                    totalAmount += document.getString("amount")?.toDouble() ?: 0.0
+                }
+            }
+        }
+
+        send(totalAmount)
+
+        awaitClose { }
+    }
+
     private suspend fun makeTransaction(
         customerUid: String,
         qrCodeValue: String,

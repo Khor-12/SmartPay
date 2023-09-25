@@ -1,4 +1,4 @@
-package com.khor.smartpay.feature_auth.presentation.welcome.components
+package com.khor.smartpay.feature_auth.presentation.phone_number_input.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -18,20 +18,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.khor.smartpay.feature_auth.presentation.welcome.WelcomeScreenEvent
-import com.khor.smartpay.feature_auth.presentation.welcome.WelcomeScreenViewModel
+import com.khor.smartpay.feature_auth.presentation.phone_number_input.PhoneNumberInputViewModel
+import com.khor.smartpay.feature_auth.presentation.phone_number_input.PhoneNumberInputEvent
 
 @SuppressLint("UnrememberedMutableState", "RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneNumberInputField(
     modifier: Modifier,
-    viewModel: WelcomeScreenViewModel
+    viewModel: PhoneNumberInputViewModel
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -47,11 +46,11 @@ fun PhoneNumberInputField(
             style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
+        OutlinedTextField(
             modifier = Modifier.focusRequester(focusRequester),
             value = viewModel.state.phoneNumber,
             onValueChange = {
-                viewModel.onEvent(WelcomeScreenEvent.OnPhoneNumberChange(it))
+                viewModel.onEvent(PhoneNumberInputEvent.OnPhoneNumberChange(it))
             },
             placeholder = {
                 Text(

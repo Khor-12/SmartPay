@@ -1,19 +1,14 @@
-package com.khor.smartpay.feature_auth.presentation.welcome
+package com.khor.smartpay.feature_auth.presentation.phone_number_input
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.Navigation
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
-import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,19 +17,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WelcomeScreenViewModel @Inject constructor(
+class PhoneNumberInputViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    var state by mutableStateOf(WelcomeScreenState())
+    var state by mutableStateOf(PhoneNumberInputState())
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-
-    fun onEvent(event: WelcomeScreenEvent) {
+    fun onEvent(event: PhoneNumberInputEvent) {
         when (event) {
-            is WelcomeScreenEvent.OnPhoneNumberChange -> {
+            is PhoneNumberInputEvent.OnPhoneNumberChange -> {
                 val length = event.number.length
                 if (length != 10) {
                     state = state.copy(
@@ -43,9 +37,13 @@ class WelcomeScreenViewModel @Inject constructor(
                 }
                 state.isEnable = state.phoneNumber.length == 9
             }
+            is PhoneNumberInputEvent.OnBusinessNameChange -> {
+                state = state.copy(
+                    businessName = event.name
+                )
+            }
         }
     }
-
 
     fun sendVerificationCode(
         number: String,

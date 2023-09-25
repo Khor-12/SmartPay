@@ -27,10 +27,16 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.khor.smartpay.SmartPayApplication
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.presentation.components.Navigation
 import com.khor.smartpay.core.presentation.ui.theme.SmartPayTheme
 import com.khor.smartpay.core.util.Screen
+import com.khor.smartpay.feature_auth.presentation.confirm_code.ConfirmCode
+import com.khor.smartpay.feature_auth.presentation.create_code.CreateCode
+import com.khor.smartpay.feature_auth.presentation.enter_code.EnterCode
+import com.khor.smartpay.feature_auth.presentation.user_selection.UserSelection
+import com.khor.smartpay.feature_auth.presentation.welcome.WelcomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -61,6 +67,7 @@ class MainActivity : ComponentActivity() {
             .addOnFailureListener {
                 // Handle failure…
             }
+        val easyPayApi = (application as SmartPayApplication).easyPayApi
 
         setContent {
             val store = UserStore(LocalContext.current)
@@ -77,11 +84,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     navController = rememberNavController()
-                    Navigation(navController = navController)
+                    Navigation(navController = navController, easyPayApi = easyPayApi)
                     AuthState()
                 }
             }
         }
+
+
     }
 
     @Composable

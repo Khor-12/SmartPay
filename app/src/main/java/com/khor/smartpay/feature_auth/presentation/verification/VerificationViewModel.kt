@@ -7,17 +7,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.khor.smartpay.core.util.Resource
+import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,6 +42,48 @@ class VerificationViewModel @Inject constructor(
                         resultCode = event.code
                     )
             }
+
+            is VerificationEvent.OnPinCodeChange -> {
+                if (event.pin.length != 5)
+                    state = state.copy(
+                        pinCode = event.pin
+                    )
+            }
+        }
+    }
+
+    fun createUserWithPin(pinCode: String) {
+        viewModelScope.launch {
+            repository.createUserWithCode(pinCode)
+                .collect { result ->
+                    when (result) {
+                        is Resource.Error -> _eventFlow.emit(UiEvent.ShowAlertDialog(result.message.toString()))
+                        is Resource.Loading -> _eventFlow.emit(UiEvent.ShowProgressIndicator(true))
+                        is Resource.Success -> {
+                            _eventFlow.emit(UiEvent.NavigateToMainScreen)
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun navigateToCodeInput() {
+        viewModelScope.launch {
+            repository.checkUserExistenceInDb()
+                .onEach { result ->
+                    when (result) {
+                        is Resource.Error -> Unit
+                        is Resource.Loading -> Unit
+                        is Resource.Success -> {
+                            if (result.data == true) {
+                                _eventFlow.emit(UiEvent.NavigateToEnterCode)
+                            } else if (result.data == false) {
+                                _eventFlow.emit(UiEvent.NavigateToCreateCode)
+                            }
+                        }
+                    }
+
+                }.launchIn(this)
         }
     }
 
@@ -51,6 +97,21 @@ class VerificationViewModel @Inject constructor(
         }
     }
 
+    fun loginUser(pinCode: String) {
+        viewModelScope.launch {
+            repository.loginUserWithCode(pinCode)
+                .collect { result ->
+                    when (result) {
+                        is Resource.Error -> _eventFlow.emit(UiEvent.ShowAlertDialog(result.message.toString()))
+                        is Resource.Loading -> _eventFlow.emit(UiEvent.ShowProgressIndicator(true))
+                        is Resource.Success -> {
+                            _eventFlow.emit(UiEvent.NavigateToMainScreen)
+                        }
+                    }
+                }
+        }
+    }
+
     private fun createUser(qrCode: String) {
         viewModelScope.launch {
             repository.createUser(qrCode).collect { result ->
@@ -59,13 +120,11 @@ class VerificationViewModel @Inject constructor(
                     is Resource.Error -> _eventFlow.emit(UiEvent.ShowAlertDialog(result.message.toString()))
                     is Resource.Success -> {
                         _eventFlow.emit(UiEvent.NavigateToMainScreen)
-
                     }
                 }
             }
         }
     }
-
 
     fun resendVerificationCode(
         number: String,
@@ -98,7 +157,8 @@ class VerificationViewModel @Inject constructor(
 
     fun signInWithCredentials(
         phoneAuthCredential: PhoneAuthCredential,
-        activity: Activity
+        activity: Activity,
+        userType: String
     ) {
         viewModelScope.launch {
             _eventFlow.emit(UiEvent.ShowProgressIndicator(true))
@@ -107,7 +167,11 @@ class VerificationViewModel @Inject constructor(
                 activity
             ) { task ->
                 if (task.isSuccessful) {
-                    startScanning()
+                    if (userType.lowercase() == "parent") {
+                        startScanning()
+                    } else {
+                        navigateToCodeInput()
+                    }
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
                         viewModelScope.launch {
@@ -128,5 +192,7 @@ class VerificationViewModel @Inject constructor(
         data class ShowAlertDialog(val message: String, val showDialog: Boolean = true) : UiEvent()
         data class ShowProgressIndicator(val show: Boolean) : UiEvent()
         object NavigateToMainScreen : UiEvent()
+        object NavigateToCreateCode : UiEvent()
+        object NavigateToEnterCode : UiEvent()
     }
 }

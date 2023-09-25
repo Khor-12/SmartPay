@@ -130,7 +130,7 @@ fun PaymentScreen() {
                     modifier = Modifier
                         .fillMaxSize()
                         .weight(1f)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 22.dp, vertical = 8.dp),
                     contentAlignment = Alignment.TopStart
                 ) {
                     Button(

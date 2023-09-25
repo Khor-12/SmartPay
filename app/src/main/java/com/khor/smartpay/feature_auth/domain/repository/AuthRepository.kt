@@ -41,5 +41,15 @@ interface AuthRepository {
 
     fun startScanning(): Flow<String?>
 
+    suspend fun getCurrentReference(): Flow<Resource<Double>>
+
+    suspend fun makeDeposit(amount: Double, phoneNumber: String)
+
+    suspend fun checkUserExistenceInDb(): Flow<Resource<Boolean>>
+
+    suspend fun createUserWithCode(pinCode: String): Flow<Resource<String>>
+
+    suspend fun loginUserWithCode(pinCode: String): Flow<Resource<String>>
+
     fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse
 }
