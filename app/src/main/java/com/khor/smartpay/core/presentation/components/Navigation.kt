@@ -59,7 +59,8 @@ fun Navigation(
                 navigateToVerificationScreen = { verificationId, phoneNumber ->
                     navController.navigate(Screen.VerificationScreen.route + "/$verificationId/$phoneNumber/$userType")
                 },
-                userType = userType
+                userType = userType,
+                navController = navController
             )
         }
         composable(

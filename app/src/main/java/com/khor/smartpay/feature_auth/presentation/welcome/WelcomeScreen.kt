@@ -44,7 +44,7 @@ fun WelcomeScreen(navController: NavController) {
             ) {
                 OutlinedButton(
                     onClick = {
-
+                        navController.navigate(Screen.PhoneNumberInputScreen.route + "/login")
                     },
                     modifier = Modifier
                         .fillMaxWidth(),

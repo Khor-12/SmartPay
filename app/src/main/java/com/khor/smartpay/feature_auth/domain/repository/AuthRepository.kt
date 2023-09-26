@@ -51,5 +51,7 @@ interface AuthRepository {
 
     suspend fun loginUserWithCode(pinCode: String): Flow<Resource<String>>
 
+    suspend fun checkUserType(): Flow<Resource<String>>
+
     fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse
 }

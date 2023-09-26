@@ -81,7 +81,7 @@ class AuthRepositoryImpl @Inject constructor(
         val userId = currentUser!!.uid
         val usersCollection = db.collection("users")
         val userDocument = usersCollection.document(userId)
-        val user = SmartUser(qrCodes = listOf(qrCode))
+        val user = SmartUser(qrCodes = listOf(qrCode), userType = "qr")
 
         val cardReference = db.collection("Cards").document(qrCode)
 
@@ -232,7 +232,7 @@ class AuthRepositoryImpl @Inject constructor(
         callbackFlow {
 
             val userDocument = db.collection("users").document(auth.currentUser!!.uid)
-            val userSell = UserSell(pinCode = pinCode)
+            val userSell = UserSell(pinCode = pinCode, userType = "pin")
 
             send(Resource.Loading(true))
             userDocument.set(userSell)
@@ -276,6 +276,25 @@ class AuthRepositoryImpl @Inject constructor(
             }
 
         awaitClose { }
+    }
+
+    override suspend fun checkUserType(): Flow<Resource<String>> = callbackFlow {
+        val userDocument = db.collection("users").document(auth.currentUser!!.uid)
+
+        send(Resource.Loading(true))
+
+        userDocument.get()
+            .addOnSuccessListener { userSnapshot ->
+                if (userSnapshot.exists()) {
+                    val userType = userSnapshot.getString("userType")
+                    launch { send(Resource.Success(userType ?: "")) }
+                } else {
+                    launch { send(Resource.Error("User doesn't exists")) }
+                }
+            }
+
+        awaitClose { }
+
     }
 
 

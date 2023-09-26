@@ -41,6 +41,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.phone_number_input.components.PhoneNumberInputField
 import com.khor.smartpay.feature_auth.presentation.phone_number_input.components.SmartPayHeader
 import kotlinx.coroutines.flow.collectLatest
@@ -51,7 +53,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun PhoneNumberInputScreen(
     viewModel: PhoneNumberInputViewModel = hiltViewModel(),
     navigateToVerificationScreen: (String, String) -> Unit,
-    userType: String
+    userType: String,
+    navController: NavController
 ) {
     val localContext = LocalContext.current
 
@@ -100,8 +103,8 @@ fun PhoneNumberInputScreen(
         ) {
             Text(
                 if (userType.lowercase() == "seller")
-                    "Create a Seller Account" else
-                    "Create a Parent/Student \nAccount",
+                    "Create a Seller Account" else if (userType.lowercase() == "parent")
+                    "Create a Parent/Student \nAccount" else "Log in to your Account",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(top = 100.dp),
                 textAlign = TextAlign.Center
@@ -129,11 +132,17 @@ fun PhoneNumberInputScreen(
             }
 
             Row(modifier = Modifier.padding(top = 60.dp)) {
-                Text(text = "Already have an account ")
+                Text(text = if (userType.lowercase() == "login") "Don't have an account " else "Already have an account ")
                 Text(
-                    text = "Log in",
+                    text = if (userType.lowercase() == "login") "Sign up" else "Log in",
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { },
+                    modifier = Modifier.clickable {
+                        if (userType.lowercase() == "login") {
+                            navController.navigate(Screen.UserSelectionScreen.route)
+                        } else {
+                            navController.navigate(Screen.PhoneNumberInputScreen.route + "/login")
+                        }
+                    },
                     textDecoration = TextDecoration.Underline
                 )
             }

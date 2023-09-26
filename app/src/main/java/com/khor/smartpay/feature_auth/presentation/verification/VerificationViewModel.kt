@@ -169,8 +169,20 @@ class VerificationViewModel @Inject constructor(
                 if (task.isSuccessful) {
                     if (userType.lowercase() == "parent") {
                         startScanning()
-                    } else {
+                    } else if (userType.lowercase() == "seller") {
                         navigateToCodeInput()
+                    } else if (userType.lowercase() == "login") {
+                        launch {
+                            repository.checkUserType().collect { result ->
+                                when (result) {
+                                    is Resource.Error -> _eventFlow.emit(UiEvent.ShowAlertDialog(result.message.toString()))
+                                    is Resource.Loading -> _eventFlow.emit(UiEvent.ShowProgressIndicator(true))
+                                    is Resource.Success -> {
+                                        println(result.data)
+                                    }
+                                }
+                            }
+                        }
                     }
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
