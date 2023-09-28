@@ -12,5 +12,6 @@ data class VerificationState(
     val isLoading: Boolean = false,
     val errorMessage: String = "",
     val showError: Boolean = false,
-    val navigateToMain: Boolean = false
+    val navigateToMain: Boolean = false,
+    val currentUserType: String = ""
 )

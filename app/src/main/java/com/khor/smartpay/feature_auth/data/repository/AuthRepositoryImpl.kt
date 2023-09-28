@@ -279,22 +279,26 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun checkUserType(): Flow<Resource<String>> = callbackFlow {
-        val userDocument = db.collection("users").document(auth.currentUser!!.uid)
-
-        send(Resource.Loading(true))
+        val userDocument = db.collection("users").document(auth.currentUser?.uid!!)
 
         userDocument.get()
             .addOnSuccessListener { userSnapshot ->
+                launch { send(Resource.Loading(true)) }
                 if (userSnapshot.exists()) {
-                    val userType = userSnapshot.getString("userType")
-                    launch { send(Resource.Success(userType ?: "")) }
+                    // login the user
+                    val currentUserType = userSnapshot.getString("userType")
+                    if (currentUserType != null) {
+                        launch { send(Resource.Success(currentUserType)) }
+                    }
                 } else {
-                    launch { send(Resource.Error("User doesn't exists")) }
+                    // creating the user
+                    launch {
+                        send(Resource.Error("User doesn't exists"))
+                    }
                 }
             }
 
         awaitClose { }
-
     }
 
 

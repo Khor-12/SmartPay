@@ -17,6 +17,7 @@ import com.khor.smartpay.feature_auth.presentation.welcome.WelcomeScreen
 import com.khor.smartpay.feature_cards.presentation.CardsScreen
 import com.khor.smartpay.feature_home.domain.repository.EasyPayApi
 import com.khor.smartpay.feature_home.presentation.HomeScreen
+import com.khor.smartpay.feature_home.presentation.HomeScreenSeller
 import com.khor.smartpay.feature_payment.presentation.PaymentScreen
 import com.khor.smartpay.feature_settings.presentation.SettingsScreen
 import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
@@ -113,6 +114,13 @@ fun Navigation(
         ) {
             HomeScreen(navController, easyPayApi)
         }
+
+        composable(
+            route = Screen.HomeScreenSeller.route
+        ) {
+            HomeScreenSeller(navController, easyPayApi)
+        }
+
         composable(
             route = Screen.PaymentScreen.route
         ) {

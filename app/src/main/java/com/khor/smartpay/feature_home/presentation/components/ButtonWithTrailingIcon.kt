@@ -18,7 +18,8 @@ fun PaymentButton(
     modifier: Modifier,
     onClick: () -> Unit,
     icon: Painter,
-    title: String
+    title: String,
+    modifierText: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
@@ -30,7 +31,7 @@ fun PaymentButton(
                 contentDescription = null,
                 modifier = Modifier.size(22.dp)
             )
-            Text(text = title)
+            Text(text = title, modifier = modifierText)
         }
     }
 }
