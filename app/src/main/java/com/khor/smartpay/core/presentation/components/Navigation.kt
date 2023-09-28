@@ -41,9 +41,6 @@ fun Navigation(
         ) {
             WelcomeScreen(
                 navController
-//                navigateToVerificationScreen = { verificationId, phoneNumber ->
-//                    navController.navigate(Screen.VerificationScreen.route + "/$verificationId/$phoneNumber")
-//                }
             )
         }
         composable(

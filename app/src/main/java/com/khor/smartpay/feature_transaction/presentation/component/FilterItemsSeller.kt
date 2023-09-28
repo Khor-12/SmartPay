@@ -18,7 +18,7 @@ import com.khor.smartpay.feature_transaction.presentation.TransactionsEvent
 import com.khor.smartpay.feature_transaction.presentation.component.ChipFilter
 
 @Composable
-fun FilterItems(
+fun FilterItemsSeller(
     modifier: Modifier,
     viewModel: TransactionDetailViewModel,
     transactionOrder: TransactionOrder = TransactionOrder.All
@@ -29,7 +29,7 @@ fun FilterItems(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         ChipFilter(
-            modifier = Modifier,
+            modifier = Modifier.weight(1f),
             sortTypeName = "All",
             onChipClicked = {
                 viewModel.onEvent(TransactionsEvent.Order(TransactionOrder.All))
@@ -38,22 +38,13 @@ fun FilterItems(
             isSelected = transactionOrder is TransactionOrder.All
         )
         ChipFilter(
-            modifier = Modifier,
-            sortTypeName = "Buy",
-            onChipClicked = {
-                viewModel.onEvent(TransactionsEvent.Order(TransactionOrder.Buy))
-                viewModel.showTransactionDetails(TransactionOrder.Buy)
-            },
-            isSelected = transactionOrder is TransactionOrder.Buy
-        )
-        ChipFilter(
             modifier = Modifier.weight(1f),
-            sortTypeName = "Deposit",
+            sortTypeName = "Sell",
             onChipClicked = {
-                viewModel.onEvent(TransactionsEvent.Order(TransactionOrder.Deposit))
-                viewModel.showTransactionDetails(TransactionOrder.Deposit)
+                viewModel.onEvent(TransactionsEvent.Order(TransactionOrder.Sell))
+                viewModel.showTransactionDetails(TransactionOrder.Sell)
             },
-            isSelected = transactionOrder is TransactionOrder.Deposit
+            isSelected = transactionOrder is TransactionOrder.Sell
         )
         ChipFilter(
             modifier = Modifier.weight(1f),

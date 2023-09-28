@@ -31,26 +31,26 @@ import com.khor.smartpay.feature_transaction.presentation.TransactionsScreenSell
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AppContent(navController: NavController, easyPayApi: EasyPayApi) {
-    var currentScreen by rememberSaveable { mutableStateOf(InternalScreen.Home) }
+fun AppContentSeller(navController: NavController, easyPayApi: EasyPayApi) {
+    var currentScreen by rememberSaveable { mutableStateOf(InternalScreenSeller.Home) }
 
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(currentScreen = currentScreen) { screen ->
+            BottomNavigationBarSeller(currentScreen = currentScreen) { screen ->
                 currentScreen = screen
             }
         }
     ) {
-        ScreenContent(currentScreen, navController, easyPayApi)
+        ScreenContentSeller(currentScreen, navController, easyPayApi)
     }
 }
 
 @Composable
-fun BottomNavigationBar(currentScreen: InternalScreen, onScreenSelected: (InternalScreen) -> Unit) {
+fun BottomNavigationBarSeller(currentScreen: InternalScreenSeller, onScreenSelected: (InternalScreenSeller) -> Unit) {
     NavigationBar() {
         NavigationBarItem(
-            selected = currentScreen == InternalScreen.Home,
-            onClick = { onScreenSelected(InternalScreen.Home) },
+            selected = currentScreen == InternalScreenSeller.Home,
+            onClick = { onScreenSelected(InternalScreenSeller.Home) },
             icon = {
                 Icon(
                     Icons.Outlined.Home,
@@ -60,14 +60,19 @@ fun BottomNavigationBar(currentScreen: InternalScreen, onScreenSelected: (Intern
             },
         )
         NavigationBarItem(
-            selected = currentScreen == InternalScreen.Cards,
-            onClick = { onScreenSelected(InternalScreen.Cards) },
-            icon = { Icon(painterResource(id = R.drawable.cards), contentDescription = "Cards") }
+            selected = currentScreen == InternalScreenSeller.Payment,
+            onClick = { onScreenSelected(InternalScreenSeller.Payment) },
+            icon = {
+                Icon(
+                    painterResource(id = R.drawable.payments),
+                    contentDescription = "Payments"
+                )
+            }
         )
         NavigationBarItem(
-            selected = currentScreen == InternalScreen.Transactions,
+            selected = currentScreen == InternalScreenSeller.Transactions,
             onClick = {
-                onScreenSelected(InternalScreen.Transactions)
+                onScreenSelected(InternalScreenSeller.Transactions)
             },
             icon = {
                 Icon(
@@ -80,24 +85,24 @@ fun BottomNavigationBar(currentScreen: InternalScreen, onScreenSelected: (Intern
 }
 
 @Composable
-fun ScreenContent(screen: InternalScreen, navController: NavController, easyPayApi: EasyPayApi) {
+fun ScreenContentSeller(screen: InternalScreenSeller, navController: NavController, easyPayApi: EasyPayApi) {
     Column {
         when (screen) {
-            InternalScreen.Home -> {
-                HomeScreen(navController, easyPayApi)
+            InternalScreenSeller.Home -> {
+                HomeScreenSeller(navController, easyPayApi)
             }
 
-            InternalScreen.Cards -> {
-                CardsScreen()
+            InternalScreenSeller.Payment -> {
+                PaymentScreen()
             }
 
-            InternalScreen.Transactions -> {
-                TransactionsScreen()
+            InternalScreenSeller.Transactions -> {
+                TransactionsScreenSeller()
             }
         }
     }
 }
 
-enum class InternalScreen {
-    Home, Cards, Transactions
+enum class InternalScreenSeller {
+    Home, Payment, Transactions
 }
