@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -50,6 +52,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.khor.smartpay.R
 import com.khor.smartpay.SmartPayApplication
+import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_home.domain.model.DepositPayload
@@ -76,6 +79,8 @@ fun HomeScreen(
     val showWithdraw = remember {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
+    val store = UserStore(context)
 
     LaunchedEffect(key1 = Unit) {
         viewModel.getCurrentBalance()

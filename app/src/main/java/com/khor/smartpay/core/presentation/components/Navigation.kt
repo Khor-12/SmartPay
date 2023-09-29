@@ -1,11 +1,14 @@
 package com.khor.smartpay.core.presentation.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.confirm_code.ConfirmCode
 import com.khor.smartpay.feature_auth.presentation.create_code.CreateCode
@@ -21,12 +24,16 @@ import com.khor.smartpay.feature_home.presentation.HomeScreenSeller
 import com.khor.smartpay.feature_payment.presentation.PaymentScreen
 import com.khor.smartpay.feature_settings.presentation.SettingsScreen
 import com.khor.smartpay.feature_transaction.presentation.TransactionsScreen
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun Navigation(
     navController: NavHostController,
     easyPayApi: EasyPayApi
 ) {
+    val context = LocalContext.current
+    val store = UserStore(context)
+
     NavHost(
         navController = navController,
         startDestination = Screen.WelcomeScreen.route
@@ -36,6 +43,13 @@ fun Navigation(
         ) {
             AppContent(navController, easyPayApi = easyPayApi)
         }
+
+        composable(
+            route = Screen.InternalScreenSeller.route
+        ) {
+            AppContentSeller(navController, easyPayApi = easyPayApi)
+        }
+
         composable(
             route = Screen.WelcomeScreen.route
         ) {
@@ -103,7 +117,10 @@ fun Navigation(
                 }
             )
         ) {
-            ConfirmCode(navController = navController, pinCode = it.arguments?.getString("pinCode")!!)
+            ConfirmCode(
+                navController = navController,
+                pinCode = it.arguments?.getString("pinCode")!!
+            )
         }
 
         composable(

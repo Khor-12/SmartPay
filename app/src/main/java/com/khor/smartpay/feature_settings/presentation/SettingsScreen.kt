@@ -53,7 +53,7 @@ fun SettingsScreen(
     val state = viewModel.state
     var openDialog by remember { mutableStateOf(false) }
     val store = UserStore(LocalContext.current)
-    val selectedColorScheme = store.getColorScheme.collectAsState(initial = 0).value
+    val selectedColorScheme = 0
 
     CustomTopAppBar(
         navController = navController, icon = Icons.Default.ArrowBack, title = "Settings"
@@ -298,7 +298,7 @@ fun SettingsScreen(
                         isSelected = selectedColorScheme == 0,
                         onSelected = {
                             viewModel.viewModelScope.launch {
-                                store.saveColorScheme(0)
+//                                store.saveColorScheme(0)
                             }
                             openDialog = false
                         }
@@ -307,7 +307,7 @@ fun SettingsScreen(
                         isSelected = selectedColorScheme == 1,
                         onSelected = {
                             viewModel.viewModelScope.launch {
-                                store.saveColorScheme(1)
+//                                store.saveColorScheme(1)
                             }
                             openDialog = false
                         }
@@ -316,7 +316,7 @@ fun SettingsScreen(
                         isSelected = selectedColorScheme == 2,
                         onSelected = {
                             viewModel.viewModelScope.launch {
-                                store.saveColorScheme(2)
+//                                store.saveColorScheme(2)
                             }
                             openDialog = false
                         }

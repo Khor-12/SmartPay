@@ -13,8 +13,10 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
+import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Resource
 import com.khor.smartpay.core.util.Screen
+import com.khor.smartpay.feature_auth.domain.model.UserPreferences
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -160,7 +162,8 @@ class VerificationViewModel @Inject constructor(
     fun signInWithCredentials(
         phoneAuthCredential: PhoneAuthCredential,
         activity: Activity,
-        userType: String
+        userType: String,
+        store: UserStore
     ) {
         viewModelScope.launch {
             _eventFlow.emit(UiEvent.ShowProgressIndicator(true))
@@ -205,6 +208,19 @@ class VerificationViewModel @Inject constructor(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    fun updateUserStore(userType: String, token: Boolean) {
+        viewModelScope.launch {
+            repository.updateUserPreferences(
+                UserPreferences(
+                    userType = userType,
+                    isUserVerified = token
+                )
+            ).collect {
+                println("Preference Database emission $it")
             }
         }
     }

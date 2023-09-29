@@ -11,6 +11,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Resource
+import com.khor.smartpay.feature_auth.domain.model.UserPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,5 +54,11 @@ interface AuthRepository {
 
     suspend fun checkUserType(): Flow<Resource<String>>
 
-    fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse
+    suspend fun updateUserPreferences(pref: UserPreferences): Flow<Boolean>
+
+    suspend fun getUserVerificationStatus(): Flow<Boolean?>
+
+    suspend fun getUserType(): Flow<String?>
+
+    fun getAuthState(viewModelScope: CoroutineScope): AuthStateResponse
 }

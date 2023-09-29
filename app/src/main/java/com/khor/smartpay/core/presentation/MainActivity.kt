@@ -2,6 +2,7 @@ package com.khor.smartpay.core.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,12 +17,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.datastore.dataStore
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.moduleinstall.ModuleInstall
@@ -31,6 +35,8 @@ import com.khor.smartpay.SmartPayApplication
 import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.presentation.components.Navigation
 import com.khor.smartpay.core.presentation.ui.theme.SmartPayTheme
+import com.khor.smartpay.core.util.AppSettings
+import com.khor.smartpay.core.util.AppSettingsSerializer
 import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.confirm_code.ConfirmCode
 import com.khor.smartpay.feature_auth.presentation.create_code.CreateCode
@@ -38,13 +44,18 @@ import com.khor.smartpay.feature_auth.presentation.enter_code.EnterCode
 import com.khor.smartpay.feature_auth.presentation.user_selection.UserSelection
 import com.khor.smartpay.feature_auth.presentation.welcome.WelcomeScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
     private val viewModel by viewModels<MainViewModel>()
 
-    @SuppressLint("RememberReturnType")
+   val Context.dataStore by dataStore("app-settings.json", AppSettingsSerializer)
+
+    @SuppressLint("RememberReturnType", "CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
@@ -72,7 +83,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val store = UserStore(LocalContext.current)
             LaunchedEffect(key1 = Unit) {
-                viewModel.getColorScheme(store)
+//                viewModel.getColorScheme(store)
             }
             store.getAccessToken
             SmartPayTheme(
@@ -84,23 +95,33 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     navController = rememberNavController()
-                    Navigation(navController = navController, easyPayApi = easyPayApi)
+                    Navigation(
+                        navController = navController,
+                        easyPayApi = easyPayApi
+                    )
                     AuthState()
                 }
             }
         }
 
-
     }
 
+    @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
     @Composable
     private fun AuthState() {
-        val store = UserStore(LocalContext.current)
-        val isUserSignedOut = viewModel.getAuthState(store).collectAsState().value
-        if (isUserSignedOut) {
+        val isUserSignedOut = viewModel.getAuthState().collectAsState().value
+        val userType = viewModel.state.userType
+        println("The user is $isUserSignedOut")
+
+        if (!isUserSignedOut) {
             NavigateToSignInScreen()
         } else {
-            NavigateToInternalScreen()
+            if (userType == "parent") {
+                NavigateToInternalScreen()
+            } else if (userType == "seller") {
+                NavigateToInternalScreenSeller()
+            } else {
+            }
         }
     }
 
@@ -113,6 +134,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun NavigateToInternalScreen() = navController.navigate(Screen.InternalScreen.route) {
+        popUpTo(navController.graph.id) {
+            inclusive = true
+        }
+    }
+
+    @Composable
+    private fun NavigateToInternalScreenSeller() = navController.navigate(Screen.InternalScreenSeller.route) {
         popUpTo(navController.graph.id) {
             inclusive = true
         }

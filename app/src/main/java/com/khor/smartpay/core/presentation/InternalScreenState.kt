@@ -7,5 +7,6 @@ import com.khor.smartpay.core.presentation.components.InternalScreen
 data class InternalScreenState(
     var currentScreen:  MutableState<InternalScreen>? = null,
     val currentTheme: Int = 0,
-    val isVerified: Boolean? = null
+    val isVerified: Boolean? = null,
+    val userType: String = ""
 )

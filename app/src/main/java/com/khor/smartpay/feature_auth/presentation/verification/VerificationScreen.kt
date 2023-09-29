@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -51,6 +52,7 @@ fun VerificationScreen(
     val localContext = LocalContext.current
     val store = UserStore(localContext)
 
+
     var openDialog by remember { mutableStateOf(false) }
     var showProgressIndicator by remember { mutableStateOf(false) }
     var openDialogMessage by remember { mutableStateOf("") }
@@ -69,8 +71,8 @@ fun VerificationScreen(
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToMainScreen -> {
+                    viewModel.updateUserStore(userType = "parent", token = true)
                     navController.navigate(Screen.InternalScreen.route)
-                    store.saveToken(true)
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToCreateCode -> {
@@ -119,7 +121,8 @@ fun VerificationScreen(
                             verificationId, it
                         ),
                         activity = localContext as Activity,
-                        userType = userType
+                        userType = userType,
+                        store = store
                     )
                 }
             }

@@ -2,21 +2,23 @@ package com.khor.smartpay.di
 
 import android.app.Application
 import android.content.Context
-import com.google.firebase.auth.FirebaseAuth
+import androidx.room.Room
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.khor.smartpay.feature_auth.data.local.entity.UserPreferenceDatabase
 import com.khor.smartpay.feature_auth.data.repository.AuthRepositoryImpl
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
+import com.khor.smartpay.feature_transaction.data.local.TransactionDetailDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -27,12 +29,22 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAuthRepository(
-        scanner: GmsBarcodeScanner
+        scanner: GmsBarcodeScanner,
+        db: UserPreferenceDatabase
     ): AuthRepository = AuthRepositoryImpl(
         auth = Firebase.auth,
         scanner = scanner,
-        firestore = Firebase.firestore
+        firestore = Firebase.firestore,
+        dao = db.dao
     )
+
+    @Provides
+    @Singleton
+    fun providePreferenceDatabase(app: Application): UserPreferenceDatabase {
+        return Room.databaseBuilder(
+            app, UserPreferenceDatabase::class.java, "local_preference_db"
+        ).build()
+    }
 
     @Singleton
     @Provides

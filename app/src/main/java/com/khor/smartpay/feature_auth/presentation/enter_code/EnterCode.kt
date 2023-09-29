@@ -71,8 +71,8 @@ fun EnterCode(navController: NavController) {
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToMainScreen -> {
-                    navController.navigate(Screen.InternalScreen.route)
-                    store.saveToken(true)
+                    viewModel.updateUserStore(userType = "seller", token = true)
+                    navController.navigate(Screen.InternalScreenSeller.route)
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToCreateCode -> {

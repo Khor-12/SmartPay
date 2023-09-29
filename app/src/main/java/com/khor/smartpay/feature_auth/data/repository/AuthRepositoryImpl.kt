@@ -1,49 +1,44 @@
 package com.khor.smartpay.feature_auth.data.repository
 
 import android.app.Activity
-import androidx.compose.runtime.MutableState
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
-import com.khor.smartpay.core.data.prefdatastore.UserStore
 import com.khor.smartpay.core.util.Resource
 import com.khor.smartpay.core.util.getCurrentTime
+import com.khor.smartpay.feature_auth.data.local.UserPreferencesDao
 import com.khor.smartpay.feature_auth.domain.model.Card
 import com.khor.smartpay.feature_auth.domain.model.SmartUser
+import com.khor.smartpay.feature_auth.domain.model.UserPreferences
 import com.khor.smartpay.feature_auth.domain.model.UserSell
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import com.khor.smartpay.feature_auth.domain.repository.AuthStateResponse
+import com.khor.smartpay.feature_transaction.data.local.TransactionDetailDao
 import com.khor.smartpay.feature_transaction.domain.model.TransactionDetail
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.io.IOException
-import java.net.HttpRetryException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val scanner: GmsBarcodeScanner,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val dao: UserPreferencesDao
 ) : AuthRepository {
 
     override val currentUser
@@ -302,27 +297,58 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
 
-    override fun getAuthState(viewModelScope: CoroutineScope, store: UserStore): AuthStateResponse =
-        callbackFlow {
-            val authStateListener = FirebaseAuth.AuthStateListener { auth ->
-                trySend(auth.currentUser == null)
+    override fun getAuthState(
+        viewModelScope: CoroutineScope
+    ): AuthStateResponse = callbackFlow {
+        val userVerified = withContext(Dispatchers.IO) {
+            dao.isUserVerified()
+        }
+        val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser != null && userVerified ?: false)
+        }
+        auth.addAuthStateListener(authStateListener)
+        awaitClose {
+            auth.removeAuthStateListener(authStateListener)
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        auth.currentUser != null && runBlocking(Dispatchers.IO) {
+            dao.isUserVerified() ?: false
+        }
+    )
+
+
+    override suspend fun updateUserPreferences(pref: UserPreferences): Flow<Boolean> = flow {
+        val userPreferenceEntity = pref.toUserPreferenceEntity()
+        try {
+            withContext(Dispatchers.IO) {
+                dao.insertPreference(userPreferenceEntity)
             }
-            auth.addAuthStateListener(authStateListener)
-            awaitClose {
-                auth.removeAuthStateListener(authStateListener)
-            }
-        }.map { isUserSignedOut ->
-            var isUserVerified = false
-            store.getAccessToken.collect {
-                isUserVerified = isUserSignedOut && it
-            }
-            isUserVerified
-//            val isUserVerified = store.getAccessToken // Replace with the method to fetch verification status
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            auth.currentUser == null
-        )
+            println("Insertion was successful, emit true")
+            // Insertion was successful, emit true
+            emit(true)
+        } catch (e: Exception) {
+            // Insertion failed, emit false
+            println("Insertion failed emit false $e")
+            emit(false)
+        }
+    }
+
+
+    override suspend fun getUserVerificationStatus(): Flow<Boolean?> = flow {
+        val userVerified = withContext(Dispatchers.IO) {
+            dao.isUserVerified()
+        }
+        emit(userVerified)
+    }
+
+    override suspend fun getUserType(): Flow<String?> = flow {
+        val userType = withContext(Dispatchers.IO) {
+            dao.getUserType()
+        }
+        emit(userType)
+    }
 
     override fun signOut() = auth.signOut()
 

@@ -15,36 +15,33 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import okhttp3.internal.userAgent
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: AuthRepository,
 ) : ViewModel() {
-
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
-
-    init {
-        /*        val userStore = UserStore(LocalContext.current)
-                getAuthState(store = userStore)*/
-        repository.currentUser
-        viewModelScope.launch {
-            delay(100)
-            _isLoading.value = false
-        }
-    }
-
+    val isLoading = MutableStateFlow(true)
 
     var state by mutableStateOf(InternalScreenState())
 
-    fun getAuthState(store: UserStore) = repository.getAuthState(viewModelScope, store)
-
-    fun getColorScheme(store: UserStore) {
+    init {
+        getUserType()
+        repository.currentUser
         viewModelScope.launch {
-            store.getColorScheme.collect {
+            delay(2000)
+            isLoading.value = false
+        }
+    }
+
+    fun getAuthState() = repository.getAuthState(viewModelScope)
+
+    private fun getUserType() {
+        viewModelScope.launch {
+            repository.getUserType().collect {
                 state = state.copy(
-                    currentTheme = it
+                    userType = it ?: ""
                 )
             }
         }
