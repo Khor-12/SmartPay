@@ -13,6 +13,7 @@ import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_auth.presentation.confirm_code.ConfirmCode
 import com.khor.smartpay.feature_auth.presentation.create_code.CreateCode
 import com.khor.smartpay.feature_auth.presentation.enter_code.EnterCode
+import com.khor.smartpay.feature_auth.presentation.generate_qrcode.GenerateQrCode
 import com.khor.smartpay.feature_auth.presentation.phone_number_input.PhoneNumberInputScreen
 import com.khor.smartpay.feature_auth.presentation.verification.VerificationScreen
 import com.khor.smartpay.feature_auth.presentation.user_selection.UserSelection
@@ -42,6 +43,12 @@ fun Navigation(
             route = Screen.InternalScreen.route
         ) {
             AppContent(navController, easyPayApi = easyPayApi)
+        }
+
+        composable(
+            route = Screen.GenerateQrCodeScreen.route
+        ) {
+            GenerateQrCode(navController = navController)
         }
 
         composable(

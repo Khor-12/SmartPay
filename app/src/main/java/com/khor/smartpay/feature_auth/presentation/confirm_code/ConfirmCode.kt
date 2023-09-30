@@ -89,6 +89,10 @@ fun ConfirmCode(
                 is VerificationViewModel.UiEvent.NavigateToEnterCode -> {
                     navController.navigate(Screen.EnterCodeScreen.route)
                 }
+
+                VerificationViewModel.UiEvent.NavigateToGenerateCode -> {
+
+                }
             }
         }
     }

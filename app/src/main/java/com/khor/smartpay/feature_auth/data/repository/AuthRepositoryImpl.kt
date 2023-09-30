@@ -318,19 +318,16 @@ class AuthRepositoryImpl @Inject constructor(
         }
     )
 
-
     override suspend fun updateUserPreferences(pref: UserPreferences): Flow<Boolean> = flow {
         val userPreferenceEntity = pref.toUserPreferenceEntity()
         try {
             withContext(Dispatchers.IO) {
                 dao.insertPreference(userPreferenceEntity)
             }
-            println("Insertion was successful, emit true")
-            // Insertion was successful, emit true
             emit(true)
         } catch (e: Exception) {
             // Insertion failed, emit false
-            println("Insertion failed emit false $e")
+            println("Insertion failed $e")
             emit(false)
         }
     }

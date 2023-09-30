@@ -18,3 +18,9 @@ fun getCurrentTime(): String {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     return dateFormat.format(currentTime)
 }
+
+fun getCurrentTimeUser(): String {
+    val currentTime = Calendar.getInstance().time
+    val dateFormat = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+    return dateFormat.format(currentTime)
+}

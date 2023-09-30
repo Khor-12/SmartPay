@@ -16,4 +16,5 @@ sealed class Screen(val route: String) {
     object CreateCodeScreen: Screen("create_code_screen")
     object EnterCodeScreen: Screen("enter_code_screen")
     object ConfirmCodeScreen: Screen("confirm_code_screen")
+    object GenerateQrCodeScreen: Screen("generate_qrcode_screen")
 }

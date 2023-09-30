@@ -82,6 +82,10 @@ fun EnterCode(navController: NavController) {
                 is VerificationViewModel.UiEvent.NavigateToEnterCode -> {
                     navController.navigate(Screen.EnterCodeScreen.route)
                 }
+
+                VerificationViewModel.UiEvent.NavigateToGenerateCode -> {
+
+                }
             }
         }
     }

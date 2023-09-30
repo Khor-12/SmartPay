@@ -14,8 +14,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.khor.smartpay.core.data.prefdatastore.UserStore
+import com.khor.smartpay.core.util.CardHash
 import com.khor.smartpay.core.util.Resource
 import com.khor.smartpay.core.util.Screen
+import com.khor.smartpay.core.util.getCurrentTimeUser
 import com.khor.smartpay.feature_auth.domain.model.UserPreferences
 import com.khor.smartpay.feature_auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -130,6 +132,23 @@ class VerificationViewModel @Inject constructor(
         }
     }
 
+    fun generateCode() {
+        viewModelScope.launch {
+            val qrCode = "company:smart pocket;phone-number:+${repository.currentUser?.phoneNumber};date:${getCurrentTimeUser()}"
+            val card = "$qrCode;${CardHash(qrCode)}"
+            repository.createUser(card).collect { result ->
+                when (result) {
+                    is Resource.Loading -> Unit
+                    is Resource.Error -> Unit
+                    is Resource.Success -> {
+                        delay(1000)
+                        _eventFlow.emit(UiEvent.NavigateToMainScreen)
+                    }
+                }
+            }
+        }
+    }
+
     fun resendVerificationCode(
         number: String,
         activity: Activity
@@ -173,7 +192,9 @@ class VerificationViewModel @Inject constructor(
             ) { task ->
                 if (task.isSuccessful) {
                     if (userType.lowercase() == "parent") {
-                        startScanning()
+                        viewModelScope.launch {
+                            _eventFlow.emit(UiEvent.NavigateToGenerateCode)
+                        }
                     } else if (userType.lowercase() == "seller") {
                         navigateToCodeInput()
                     } else {
@@ -231,5 +252,6 @@ class VerificationViewModel @Inject constructor(
         object NavigateToMainScreen : UiEvent()
         object NavigateToCreateCode : UiEvent()
         object NavigateToEnterCode : UiEvent()
+        object NavigateToGenerateCode : UiEvent()
     }
 }
