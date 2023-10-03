@@ -71,8 +71,7 @@ fun VerificationScreen(
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToMainScreen -> {
-                    viewModel.updateUserStore(userType = "parent", token = true)
-                    navController.navigate(Screen.InternalScreen.route)
+                    println("Navigating to the main screen verification")
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToCreateCode -> {
@@ -84,7 +83,11 @@ fun VerificationScreen(
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToGenerateCode -> {
-
+                    viewModel.generateCode(navigateToMainScreen = {
+                        viewModel.updateUserStore(userType = "parent", token = true)
+                        navController.navigate(Screen.InternalScreen.route)
+                    })
+                    navController.navigate(Screen.GenerateQrCodeScreen.route)
                 }
             }
         }

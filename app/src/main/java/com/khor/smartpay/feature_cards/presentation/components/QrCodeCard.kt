@@ -75,7 +75,7 @@ fun QrCodeCard(
         ) {
             Text(
                 modifier = Modifier.padding(top = 20.dp, bottom = 5.dp).fillMaxWidth(),
-                text = qrCode,
+                text = "SmartPocket Card",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )

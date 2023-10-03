@@ -1,5 +1,8 @@
 package com.khor.smartpay.feature_home.presentation
 
+import android.app.DatePickerDialog
+import android.content.Context
+import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +31,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,10 +62,15 @@ import com.khor.smartpay.core.presentation.components.StandardToolbar
 import com.khor.smartpay.core.util.Screen
 import com.khor.smartpay.feature_home.domain.model.DepositPayload
 import com.khor.smartpay.feature_home.domain.repository.EasyPayApi
+import com.khor.smartpay.feature_home.presentation.components.Graph
 import com.khor.smartpay.feature_home.presentation.components.PaymentButton
 import com.khor.smartpay.feature_home.presentation.components.TransactionAlertDialog
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import java.util.Locale
+import java.util.Random
 
 @Composable
 fun HomeScreen(
@@ -70,8 +80,10 @@ fun HomeScreen(
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val state = viewModel.state
 
-    var expanded by remember { mutableStateOf(false) }
+    val expanded = remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("2023") }
+    // Declaring a string value to store date in string format
+    val mDate = remember { mutableStateOf("") }
 
     val showDeposit = remember {
         mutableStateOf(false)
@@ -81,6 +93,17 @@ fun HomeScreen(
     }
     val context = LocalContext.current
     val store = UserStore(context)
+    val showDialog = remember { mutableStateOf(false) }
+
+    val yStep = 50
+    val random = Random()
+    /* to test with random points */
+    val points = (0..9).map {
+        var num = random.nextInt(350)
+        if (num <= 50)
+            num += 100
+        num.toFloat()
+    }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.getCurrentBalance()
@@ -103,7 +126,19 @@ fun HomeScreen(
         }
     )
 
-
+    if (showDialog.value) {
+        MonthYearPickerDialog(
+            onDateSelected = {
+                val date = it.split(" ")
+                viewModel.state.numberOfMonthDays = getDaysInMonth(date[1].toInt(), date[0].toInt())
+                viewModel.state.datePickerDateTime = formatDate(date[0].toInt(), date[1].toInt())
+                showDialog.value = false
+            },
+            onDismissRequest = {
+                showDialog.value = false
+            }
+        )
+    }
 
     if (showDeposit.value) {
         TransactionAlertDialog(
@@ -211,7 +246,7 @@ fun HomeScreen(
         Card(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
-                    .padding(top = 24.dp, start = 24.dp, end = 24.dp)
+                    .padding(top = 16.dp)
                     .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
@@ -219,41 +254,28 @@ fun HomeScreen(
                     text = "Balance",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Start,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(start = 16.dp, top = 2.dp)
                 )
                 Row(
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier.padding(end = 4.dp)
                 ) {
                     Text(
-                        selectedOption,
-                        modifier = Modifier.padding(top = 3.dp),
+                        state.datePickerDateTime,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
                     Column {
                         IconButton(
-                            onClick = { expanded = !expanded },
-                            modifier = Modifier.offset(y = (-10).dp)
+                            onClick = { showDialog.value = true },
+                            modifier = Modifier.offset(y = (-13).dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.DateRange,
                                 contentDescription = "pick year"
                             )
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            // Create DropdownMenuItems
-                            DropdownMenuItem(
-                                onClick = {
-                                    selectedOption = "2023"
-                                    expanded = false
-                                }
-                            ) {
-                                Text(text = "2023")
-                            }
                         }
                     }
 
@@ -263,57 +285,37 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .padding(horizontal = 8.dp)
+                    .height(230.dp)
             ) {
-                App()
+                Graph(
+                    modifier = Modifier
+                        .fillMaxSize().padding(end = 8.dp),
+                    xValues = (0 until state.numberOfMonthDays).map { it + 1 },
+                    yValues = (0..6).map { (it + 1) * yStep },
+                    points = points,
+                    paddingSpace = 20.dp,
+                    verticalStep = yStep
+                )
             }
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp), horizontalArrangement = Arrangement.spacedBy(80.dp)
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
+                    .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                        "Income",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .alpha(0.8f)
-                            .padding(start = 10.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 10.dp), verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("|", color = Color(0xFF4CAF50), fontSize = 26.sp)
-                        Text(
-                            "${state.totalIncome} Ush",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                Column {
-                    Text(
-                        "Expense",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .alpha(0.8f)
-                            .padding(start = 10.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 10.dp), verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("|", color = MaterialTheme.colorScheme.error, fontSize = 26.sp)
-                        Text(
-                            "-${state.totalExpense} Ush",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                Text(
+                    "Expense",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .alpha(0.8f)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    "${state.totalExpense} Ush",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
@@ -321,83 +323,66 @@ fun HomeScreen(
 }
 
 
-data class MonthlyData(val month: String, val income: Float, val expense: Float)
-
 @Composable
-fun MonthlyHistogram(monthlyData: List<MonthlyData>) {
-    Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState())
-    ) {
-        monthlyData.forEach { data ->
-            MonthlyHistogramItem(data)
+fun MonthYearPickerDialog(
+    onDateSelected: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val mContext = LocalContext.current
+    val mCalendar = Calendar.getInstance()
+    val mYear = mCalendar.get(Calendar.YEAR)
+    val mMonth = mCalendar.get(Calendar.MONTH)
+
+    val mDatePickerDialog = remember {
+        MonthYearPickerDialogImpl(
+            mContext,
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, _ ->
+                val formattedDate = "${monthOfYear + 1} $year"
+                onDateSelected(formattedDate)
+            },
+            mYear,
+            mMonth
+        ).apply {
+            setOnDismissListener {
+                onDismissRequest()
+            }
         }
     }
 
+    DisposableEffect(Unit) {
+        mDatePickerDialog.show()
+
+        onDispose {
+            mDatePickerDialog.dismiss()
+        }
+    }
 }
 
-@Composable
-fun MonthlyHistogramItem(data: MonthlyData) {
-    val maxAmount = maxOf(data.income, data.expense)
-    val incomeRatio = data.income / maxAmount
-    val expenseRatio = data.expense / maxAmount
-
-    Box(
-        modifier = Modifier
-            .width(40.dp)
-            .padding(horizontal = 4.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight(incomeRatio)
-                .width(25.dp)
-                .background(Color(0xFF4CAF50))
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxHeight(expenseRatio)
-                .width(25.dp)
-                .background(MaterialTheme.colorScheme.error)
-        )
-        Box(
-            modifier = Modifier
-                .width(25.dp)
-                .offset(y = (165).dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = data.month,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(vertical = 4.dp),
-                textAlign = TextAlign.Center
-            )
-        }
-
+class MonthYearPickerDialogImpl(
+    context: Context,
+    onDateSetListener: DatePickerDialog.OnDateSetListener?,
+    year: Int,
+    monthOfYear: Int
+) : DatePickerDialog(context, onDateSetListener, year, monthOfYear, 1) {
+    override fun onDateChanged(view: DatePicker, year: Int, month: Int, dayOfMonth: Int) {
+        super.onDateChanged(view, year, month, 1)
     }
 }
 
 
-@Composable
-fun App() {
-    val monthlyData = listOf(
-        MonthlyData("Jan", 1200f, 800f),
-        MonthlyData("Feb", 1500f, 1000f),
-        MonthlyData("Mar", 1800f, 1200f),
-        MonthlyData("Apr", 1600f, 1100f),
-        MonthlyData("May", 2000f, 1300f),
-        MonthlyData("Jun", 2100f, 1400f),
-        MonthlyData("Jul", 2300f, 1500f),
-        MonthlyData("Aug", 2200f, 1600f),
-        MonthlyData("Sep", 2500f, 1700f),
-        MonthlyData("Oct", 2400f, 1800f),
-        MonthlyData("Nov", 2600f, 1900f),
-        MonthlyData("Dec", 2800f, 2000f)
-    )
+private fun formatDate(monthOfYear: Int, year: Int): String {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.MONTH, monthOfYear)
+    calendar.set(Calendar.YEAR, year)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        MonthlyHistogram(monthlyData)
-    }
+    val dateFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
+    return dateFormat.format(calendar.time)
+}
+
+fun getDaysInMonth(year: Int, month: Int): Int {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.YEAR, year)
+    calendar.set(Calendar.MONTH, month - 1) // Month is 0-based in Calendar
+
+    return calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 }

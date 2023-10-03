@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.khor.smartpay.core.util.Screen
@@ -45,8 +48,7 @@ fun GenerateQrCode(navController: NavController) {
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToMainScreen -> {
-                    viewModel.updateUserStore(userType = "parent", token = true)
-                    navController.navigate(Screen.InternalScreen.route)
+                    println("Navigating to main screen")
                 }
 
                 is VerificationViewModel.UiEvent.NavigateToCreateCode -> {
@@ -57,12 +59,41 @@ fun GenerateQrCode(navController: NavController) {
                     navController.navigate(Screen.EnterCodeScreen.route)
                 }
 
-                is VerificationViewModel.UiEvent.NavigateToGenerateCode -> {
-                    navController.navigate(Screen.GenerateQrCodeScreen.route)
-                    viewModel.generateCode()
-                }
+                is VerificationViewModel.UiEvent.NavigateToGenerateCode -> { }
             }
         }
+    }
+
+    if (openDialog) {
+        AlertDialog(
+            onDismissRequest = { openDialog = false },
+            title = { Text(text = "Error") },
+            text = { Text(openDialogMessage, fontSize = 18.sp) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDialog = false
+                    }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
+    if (openDialog) {
+        AlertDialog(
+            onDismissRequest = { openDialog = false },
+            title = { Text(text = "Error") },
+            text = { Text(openDialogMessage, fontSize = 18.sp) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDialog = false
+                    }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 
     Column(
@@ -77,4 +108,5 @@ fun GenerateQrCode(navController: NavController) {
                 .padding(16.dp)
         )
     }
+
 }

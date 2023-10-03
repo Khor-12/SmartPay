@@ -79,17 +79,27 @@ class HomeScreenViewModel @Inject constructor(
                             val status = responseBodyMap["success"]
                             state.depositErrorMsg = "$status"
                             if (status != 0.0) {
-                                GlobalScope.launch {
+                                viewModelScope.launch {
                                     authRepository.makeDeposit(
                                         payload.amount.toDouble(),
                                         payload.phone
-                                    )
+                                    ).onEach { result ->
+                                        when (result) {
+                                            is Resource.Error -> {
+                                                println("This is the error msg: ${result.message}")
+                                            }
+                                            is Resource.Loading -> Unit
+                                            is Resource.Success -> {
+                                                getCurrentBalance()
+                                                state = state.copy(
+                                                    isLoading = false,
+                                                    depositErrorMsg = "The transaction was successful"
+                                                )
+                                            }
+                                        }
+
+                                    }.launchIn(this)
                                 }
-                                state = state.copy(
-                                    isLoading = false,
-                                    depositErrorMsg = "The transaction was successful"
-                                )
-                                getCurrentBalance()
                             }
                         }
                     } else {

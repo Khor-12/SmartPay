@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         easyPayApi = easyPayApi
                     )
-//                    AuthState()
+                    AuthState()
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.khor.smartpay.feature_auth.data.repository
 
 import android.app.Activity
+import androidx.compose.material.RangeSlider
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -145,6 +146,68 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose { }
     }
 
+    override suspend fun createUserWithGenCode(qrCode: String): Flow<Resource<String>> = callbackFlow {
+        val userId = currentUser!!.uid
+        val usersCollection = db.collection("users")
+        val userDocument = usersCollection.document(userId)
+        val user = SmartUser(qrCodes = listOf(qrCode), userType = "qr")
+
+        val cardReference = db.collection("Cards").document(qrCode)
+
+        userDocument.get()
+            .addOnSuccessListener { userSnapshot ->
+                launch { send(Resource.Loading(true)) }
+                if (userSnapshot.exists()) {
+                    // User already exists
+                    launch { send(Resource.Error("User already has an account")) }
+                } else {
+                    // creating the user
+                    cardReference.get()
+                        .addOnSuccessListener { cardSnapshot ->
+                            if (cardSnapshot.exists()) {
+                                launch { send(Resource.Error("QrCode Card already exists")) }
+                                // Handle the case where the document exists.
+                            } else {
+                                userDocument.set(user)
+                                    .addOnSuccessListener {
+                                        // navigate to Home screen
+                                        userDocument.collection("Transactions")
+                                        cardReference.set(
+                                            Card(
+                                                qrCode = qrCode,
+                                                userId = currentUser!!.uid
+                                            )
+                                        ).addOnSuccessListener {
+                                            launch {
+                                                send(Resource.Success("User $userId created successfully."))
+                                            }
+                                        }
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        launch {
+                                            send(Resource.Error("Failed to create user $userId: ${exception.message}"))
+                                        }
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            launch {
+                                send(Resource.Error("Error checking document existence: $exception"))
+                            }
+                        }
+
+                }
+            }
+            .addOnFailureListener { exception ->
+                launch {
+                    send(Resource.Error("Error checking user existence for $userId: ${exception.message}"))
+                }
+            }
+
+        awaitClose {  }
+
+    }
+
     override fun startScanning(): Flow<String?> {
         return callbackFlow {
             scanner.startScan()
@@ -181,7 +244,7 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose { }
     }
 
-    override suspend fun makeDeposit(amount: Double, phoneNumber: String) {
+    override suspend fun makeDeposit(amount: Double, phoneNumber: String): Flow<Resource<String>> = callbackFlow {
         val currentUserTransactionsRef =
             db.collection("users").document(currentUser!!.uid).collection("Transactions")
 
@@ -193,8 +256,17 @@ class AuthRepositoryImpl @Inject constructor(
                 dateTime = getCurrentTime(),
                 amount = amount.toString()
             )
-        ).addOnSuccessListener {}
-            .addOnFailureListener {}
+        ).addOnSuccessListener {
+            launch {
+                send(Resource.Success("The transaction was successful"))
+            }
+        }.addOnFailureListener {
+            launch {
+                send(Resource.Error("The transaction failed $it"))
+            }
+        }
+
+        awaitClose {  }
     }
 
     override suspend fun checkUserExistenceInDb(): Flow<Resource<Boolean>> = callbackFlow {

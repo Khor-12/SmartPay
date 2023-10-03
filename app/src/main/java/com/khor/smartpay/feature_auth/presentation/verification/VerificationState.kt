@@ -13,5 +13,7 @@ data class VerificationState(
     val errorMessage: String = "",
     val showError: Boolean = false,
     val navigateToMain: Boolean = false,
-    val currentUserType: String = ""
+    val currentUserType: String = "",
+    val startQrCodeGeneration: Boolean = false,
+    val navigateToInternalScreen: Boolean = false
 )

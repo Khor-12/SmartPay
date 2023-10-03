@@ -1,5 +1,9 @@
 package com.khor.smartpay.feature_home.presentation
 
+import com.khor.smartpay.core.util.getCurrentMonthYear
+import com.khor.smartpay.core.util.getCurrentMonthYearNum
+import com.khor.smartpay.core.util.getCurrentTime
+
 data class HomeScreenState(
     var phoneNumber: String = "",
     val currentBalance: Double = 0.0,
@@ -15,5 +19,10 @@ data class HomeScreenState(
     var isLoading: Boolean = false,
     var signingOut: Boolean = false,
     val totalIncome: Double = 0.0,
-    val totalExpense: Double = 0.0
+    val totalExpense: Double = 0.0,
+    var datePickerDateTime: String = getCurrentMonthYear(),
+    var numberOfMonthDays: Int = getDaysInMonth(
+        getCurrentMonthYearNum().split(" ")[0].toInt(),
+        getCurrentMonthYearNum().split(" ")[1].toInt()
+    )
 )

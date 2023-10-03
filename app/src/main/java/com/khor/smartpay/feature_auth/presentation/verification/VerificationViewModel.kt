@@ -132,23 +132,6 @@ class VerificationViewModel @Inject constructor(
         }
     }
 
-    fun generateCode() {
-        viewModelScope.launch {
-            val qrCode = "company:smart pocket;phone-number:+${repository.currentUser?.phoneNumber};date:${getCurrentTimeUser()}"
-            val card = "$qrCode;${CardHash(qrCode)}"
-            repository.createUser(card).collect { result ->
-                when (result) {
-                    is Resource.Loading -> Unit
-                    is Resource.Error -> Unit
-                    is Resource.Success -> {
-                        delay(1000)
-                        _eventFlow.emit(UiEvent.NavigateToMainScreen)
-                    }
-                }
-            }
-        }
-    }
-
     fun resendVerificationCode(
         number: String,
         activity: Activity
@@ -178,6 +161,28 @@ class VerificationViewModel @Inject constructor(
 
     }
 
+    fun generateCode(navigateToMainScreen: () -> Unit) {
+        println("Debugging from the beginning of the function")
+        viewModelScope.launch {
+            println("Debugging the code generation 3")
+            val qrCode = "company:smart pocket;phone-number:+${repository.currentUser?.phoneNumber};date:${getCurrentTimeUser()}"
+            val card = "$qrCode;${CardHash(qrCode).hashCode()}"
+            println("Debugging the code generation 4 $card")
+            repository.createUserWithGenCode(card).collect { result ->
+                when (result) {
+                    is Resource.Loading -> Unit
+                    is Resource.Error -> _eventFlow.emit(UiEvent.ShowAlertDialog(result.message.toString()))
+                    is Resource.Success -> {
+                        println("Debugging the code generation 5")
+                        delay(500)
+                        navigateToMainScreen()
+                        println("Debugging the code generation 5")
+                    }
+                }
+            }
+        }
+    }
+
     fun signInWithCredentials(
         phoneAuthCredential: PhoneAuthCredential,
         activity: Activity,
@@ -192,7 +197,9 @@ class VerificationViewModel @Inject constructor(
             ) { task ->
                 if (task.isSuccessful) {
                     if (userType.lowercase() == "parent") {
+                        println("Debugging the code generation 1")
                         viewModelScope.launch {
+                            println("Debugging the code generation 2")
                             _eventFlow.emit(UiEvent.NavigateToGenerateCode)
                         }
                     } else if (userType.lowercase() == "seller") {

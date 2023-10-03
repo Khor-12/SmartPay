@@ -246,7 +246,7 @@ fun HomeScreenSeller(
                     .fillMaxWidth()
                     .height(200.dp)
             ) {
-                App()
+
             }
             Row(
                 modifier = Modifier

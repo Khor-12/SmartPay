@@ -36,6 +36,8 @@ interface AuthRepository {
 
     suspend fun createUser(qrCode: String): Flow<Resource<String>>
 
+    suspend fun createUserWithGenCode(qrCode: String): Flow<Resource<String>>
+
     fun signOut()
 
     suspend fun performDeleteAccount(): Flow<Resource<Boolean>>
@@ -44,7 +46,7 @@ interface AuthRepository {
 
     suspend fun getCurrentReference(): Flow<Resource<Double>>
 
-    suspend fun makeDeposit(amount: Double, phoneNumber: String)
+    suspend fun makeDeposit(amount: Double, phoneNumber: String): Flow<Resource<String>>
 
     suspend fun checkUserExistenceInDb(): Flow<Resource<Boolean>>
 
