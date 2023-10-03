@@ -1,5 +1,7 @@
 package com.khor.smartpay.feature_home.presentation
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,6 +35,7 @@ class HomeScreenViewModel @Inject constructor(
         getCurrentBalance()
         getTotalIncome()
         getTotalExpense()
+        getReferenceCount()
     }
 
     fun clearInputFields() {
@@ -62,7 +65,6 @@ class HomeScreenViewModel @Inject constructor(
     }
 
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun makeDeposit(easyPayApi: EasyPayApi, payload: DepositPayload) {
         easyPayApi.makeDeposit("https://www.easypay.co.ug/api/", payload)
             .enqueue(object : Callback<Map<String, Any>> {
@@ -72,13 +74,11 @@ class HomeScreenViewModel @Inject constructor(
                 ) {
                     if (response.isSuccessful) {
                         val responseBodyMap = response.body()
-                        println(responseBodyMap)
                         // Handle the map data here
                         if (responseBodyMap != null) {
-                            // Access specific values in the map
-                            val status = responseBodyMap["success"]
-                            state.depositErrorMsg = "$status"
-                            if (status != 0.0) {
+//                            // Access specific values in the map
+//                            val status = responseBodyMap["success"]
+//                            if (status == 1) {
                                 viewModelScope.launch {
                                     authRepository.makeDeposit(
                                         payload.amount.toDouble(),
@@ -99,21 +99,22 @@ class HomeScreenViewModel @Inject constructor(
                                         }
 
                                     }.launchIn(this)
-                                }
+//                                }
                             }
                         }
                     } else {
                         // Handle the error response here
+
                     }
                 }
 
                 override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
                     // Handle the network error here
-                    state = state.copy(
-                        isLoading = false,
-                        depositError = true,
-                        depositErrorMsg = "check your internet connection"
-                    )
+//                    state = state.copy(
+//                        isLoading = false,
+//                        depositError = true,
+//                        depositErrorMsg = "check your internet connection"
+//                    )
                 }
             })
     }
